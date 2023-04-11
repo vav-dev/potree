@@ -1,5 +1,5 @@
 
-import * as THREE from "../../libs/three.js/build/three.module.js";
+import * as THREE from "three/src/Three";
 
 THREE.Ray.prototype.distanceToPlaneWithNegative = function (plane) {
 	let denominator = plane.normal.dot(this.direction);

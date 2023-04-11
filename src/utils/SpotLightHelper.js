@@ -1,9 +1,9 @@
 
-import * as THREE from "../../libs/three.js/build/three.module.js";
+import * as THREE from "three/src/Three";
 
-export class SpotLightHelper extends THREE.Object3D{
+export class SpotLightHelper extends THREE.Object3D {
 
-	constructor(light, color){
+	constructor(light, color) {
 		super();
 
 		this.light = light;
@@ -22,20 +22,20 @@ export class SpotLightHelper extends THREE.Object3D{
 		}
 
 		{ // LINES
-			
+
 
 			let positions = new Float32Array([
-				+0, +0, +0,     +0, +0, -1,
+				+0, +0, +0, +0, +0, -1,
 
-				+0, +0, +0,     -1, -1, -1,
-				+0, +0, +0,     +1, -1, -1,
-				+0, +0, +0,     +1, +1, -1,
-				+0, +0, +0,     -1, +1, -1,
+				+0, +0, +0, -1, -1, -1,
+				+0, +0, +0, +1, -1, -1,
+				+0, +0, +0, +1, +1, -1,
+				+0, +0, +0, -1, +1, -1,
 
-				-1, -1, -1,     +1, -1, -1,
-				+1, -1, -1,     +1, +1, -1,
-				+1, +1, -1,     -1, +1, -1,
-				-1, +1, -1,     -1, -1, -1,
+				-1, -1, -1, +1, -1, -1,
+				+1, -1, -1, +1, +1, -1,
+				+1, +1, -1, -1, +1, -1,
+				-1, +1, -1, -1, -1, -1,
 			]);
 
 			let geometry = new THREE.BufferGeometry();
@@ -51,7 +51,7 @@ export class SpotLightHelper extends THREE.Object3D{
 		this.update();
 	}
 
-	update(){
+	update() {
 
 		this.light.updateMatrix();
 		this.light.updateMatrixWorld();
@@ -59,9 +59,9 @@ export class SpotLightHelper extends THREE.Object3D{
 		let position = this.light.position;
 		let target = new THREE.Vector3().addVectors(
 			this.light.position, this.light.getWorldDirection(new THREE.Vector3()).multiplyScalar(-1));
-		
+
 		let quat = new THREE.Quaternion().setFromRotationMatrix(
-			new THREE.Matrix4().lookAt( position, target, new THREE.Vector3( 0, 0, 1 ) )
+			new THREE.Matrix4().lookAt(position, target, new THREE.Vector3(0, 0, 1))
 		);
 
 		this.setRotationFromQuaternion(quat);
@@ -69,7 +69,7 @@ export class SpotLightHelper extends THREE.Object3D{
 
 
 		let coneLength = (this.light.distance > 0) ? this.light.distance : 1000;
-		let coneWidth = coneLength * Math.tan( this.light.angle * 0.5 );
+		let coneWidth = coneLength * Math.tan(this.light.angle * 0.5);
 
 		this.frustum.scale.set(coneWidth, coneWidth, coneLength);
 

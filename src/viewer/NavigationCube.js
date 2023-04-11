@@ -1,22 +1,22 @@
 
-import * as THREE from "../../libs/three.js/build/three.module.js";
+import * as THREE from "three/src/Three";
 
 export class NavigationCube extends THREE.Object3D {
 
-	constructor(viewer){
+	constructor(viewer) {
 		super();
 
 		this.viewer = viewer;
 
 		let createPlaneMaterial = (img) => {
-			let material = new THREE.MeshBasicMaterial( {
-				depthTest: true, 
+			let material = new THREE.MeshBasicMaterial({
+				depthTest: true,
 				depthWrite: true,
 				side: THREE.DoubleSide
 			});
 			new THREE.TextureLoader().load(
 				exports.resourcePath + '/textures/navigation/' + img,
-				function(texture) {
+				function (texture) {
 					texture.anisotropy = viewer.renderer.capabilities.getMaxAnisotropy();
 					material.map = texture;
 					material.needsUpdate = true;
@@ -78,13 +78,13 @@ export class NavigationCube extends THREE.Object3D {
 			if (!this.visible) {
 				return;
 			}
-			
+
 			this.pickedFace = null;
 			let mouse = new THREE.Vector2();
 			mouse.x = event.clientX - (window.innerWidth - this.width);
 			mouse.y = event.clientY;
 
-			if(mouse.x < 0 || mouse.y > this.width) return;
+			if (mouse.x < 0 || mouse.y > this.width) return;
 
 			mouse.x = (mouse.x / this.width) * 2 - 1;
 			mouse.y = -(mouse.y / this.width) * 2 + 1;
@@ -97,13 +97,13 @@ export class NavigationCube extends THREE.Object3D {
 
 			let minDistance = 1000;
 			for (let i = 0; i < intersects.length; i++) {
-				if(intersects[i].distance < minDistance) {
+				if (intersects[i].distance < minDistance) {
 					this.pickedFace = intersects[i].object.name;
 					minDistance = intersects[i].distance;
 				}
 			}
-			
-			if(this.pickedFace) {
+
+			if (this.pickedFace) {
 				this.viewer.setView(this.pickedFace);
 			}
 		};

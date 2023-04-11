@@ -1,9 +1,11 @@
 
-import * as THREE from "../libs/three.js/build/three.module.js";
-import {ClipTask, ClipMethod} from "./defines.js";
-import {Box3Helper} from "./utils/Box3Helper.js";
+import * as THREE from "three/src/Three";
+import { ClipTask, ClipMethod } from "./defines.js";
+import { Box3Helper } from "./utils/Box3Helper.js";
+import { BinaryHeap } from "../libs/other/BinaryHeap.js";
+import { lru } from "./Potree.js";
 
-export function updatePointClouds(pointclouds, camera, renderer){
+export function updatePointClouds(pointclouds, camera, renderer) {
 
 	for (let pointcloud of pointclouds) {
 		let start = performance.now();
@@ -12,7 +14,7 @@ export function updatePointClouds(pointclouds, camera, renderer){
 			profileRequest.update();
 
 			let duration = performance.now() - start;
-			if(duration > 5){
+			if (duration > 5) {
 				break;
 			}
 		}
@@ -27,7 +29,7 @@ export function updatePointClouds(pointclouds, camera, renderer){
 		pointcloud.updateVisibleBounds();
 	}
 
-	exports.lru.freeMemory();
+	lru.freeMemory();
 
 	return result;
 };
@@ -57,7 +59,7 @@ export function updateVisibilityStructures(pointclouds, camera, renderer) {
 		let frustum = new THREE.Frustum();
 		let viewI = camera.matrixWorldInverse;
 		let world = pointcloud.matrixWorld;
-		
+
 		// use close near plane for frustum intersection
 		let frustumCam = camera.clone();
 		frustumCam.near = Math.min(camera.near, 0.1);
@@ -76,7 +78,7 @@ export function updateVisibilityStructures(pointclouds, camera, renderer) {
 		camObjPositions.push(camObjPos);
 
 		if (pointcloud.visible && pointcloud.root !== null) {
-			priorityQueue.push({pointcloud: i, node: pointcloud.root, weight: Number.MAX_VALUE});
+			priorityQueue.push({ pointcloud: i, node: pointcloud.root, weight: Number.MAX_VALUE });
 		}
 
 		// hide all previously visible nodes
@@ -99,8 +101,9 @@ export function updateVisibilityStructures(pointclouds, camera, renderer) {
 	};
 };
 
+const _pointcloudTransformVersion = new Map();
 
-export function updateVisibility(pointclouds, camera, renderer){
+export function updateVisibility(pointclouds, camera, renderer) {
 
 	let numVisibleNodes = 0;
 	let numVisiblePoints = 0;
@@ -120,30 +123,25 @@ export function updateVisibility(pointclouds, camera, renderer){
 	let priorityQueue = s.priorityQueue;
 
 	let loadedToGPUThisFrame = 0;
-	
+
 	let domWidth = renderer.domElement.clientWidth;
 	let domHeight = renderer.domElement.clientHeight;
 
-	// check if pointcloud has been transformed
-	// some code will only be executed if changes have been detected
-	if(!Potree._pointcloudTransformVersion){
-		Potree._pointcloudTransformVersion = new Map();
-	}
-	let pointcloudTransformVersion = Potree._pointcloudTransformVersion;
-	for(let pointcloud of pointclouds){
+	let pointcloudTransformVersion = _pointcloudTransformVersion;
+	for (let pointcloud of pointclouds) {
 
-		if(!pointcloud.visible){
+		if (!pointcloud.visible) {
 			continue;
 		}
 
 		pointcloud.updateMatrixWorld();
 
-		if(!pointcloudTransformVersion.has(pointcloud)){
-			pointcloudTransformVersion.set(pointcloud, {number: 0, transform: pointcloud.matrixWorld.clone()});
-		}else{
+		if (!pointcloudTransformVersion.has(pointcloud)) {
+			pointcloudTransformVersion.set(pointcloud, { number: 0, transform: pointcloud.matrixWorld.clone() });
+		} else {
 			let version = pointcloudTransformVersion.get(pointcloud);
 
-			if(!version.transform.equals(pointcloud.matrixWorld)){
+			if (!version.transform.equals(pointcloud.matrixWorld)) {
 				version.number++;
 				version.transform.copy(pointcloud.matrixWorld);
 
@@ -182,7 +180,7 @@ export function updateVisibility(pointclouds, camera, renderer){
 		visible = visible || node.getLevel() <= 2;
 
 		let clipBoxes = pointcloud.material.clipBoxes;
-		if(true && clipBoxes.length > 0){
+		if (true && clipBoxes.length > 0) {
 
 			//node.debug = false;
 
@@ -193,7 +191,7 @@ export function updateVisibility(pointclouds, camera, renderer){
 			//	var a = 10;
 			//}
 
-			for(let clipBox of clipBoxes){
+			for (let clipBox of clipBoxes) {
 
 				let pcWorldInverse = pointcloud.matrixWorld.clone().invert();
 				let toPCObject = pcWorldInverse.multiply(clipBox.box.matrixWorld);
@@ -238,7 +236,7 @@ export function updateVisibility(pointclouds, camera, renderer){
 				let frustum = new THREE.Frustum(pxPlane, nxPlane, pyPlane, nyPlane, pzPlane, nzPlane);
 				let intersects = frustum.intersectsBox(box);
 
-				if(intersects){
+				if (intersects) {
 					numIntersecting++;
 				}
 				numIntersectionVolumes++;
@@ -247,15 +245,15 @@ export function updateVisibility(pointclouds, camera, renderer){
 			let insideAny = numIntersecting > 0;
 			let insideAll = numIntersecting === numIntersectionVolumes;
 
-			if(pointcloud.material.clipTask === ClipTask.SHOW_INSIDE){
-				if(pointcloud.material.clipMethod === ClipMethod.INSIDE_ANY && insideAny){
+			if (pointcloud.material.clipTask === ClipTask.SHOW_INSIDE) {
+				if (pointcloud.material.clipMethod === ClipMethod.INSIDE_ANY && insideAny) {
 					//node.debug = true
-				}else if(pointcloud.material.clipMethod === ClipMethod.INSIDE_ALL && insideAll){
+				} else if (pointcloud.material.clipMethod === ClipMethod.INSIDE_ALL && insideAll) {
 					//node.debug = true;
-				}else{
+				} else {
 					visible = false;
 				}
-			} else if(pointcloud.material.clipTask === ClipTask.SHOW_OUTSIDE){
+			} else if (pointcloud.material.clipTask === ClipTask.SHOW_OUTSIDE) {
 				//if(pointcloud.material.clipMethod === ClipMethod.INSIDE_ANY && !insideAny){
 				//	//visible = true;
 				//	let a = 10;
@@ -266,7 +264,7 @@ export function updateVisibility(pointclouds, camera, renderer){
 				//	visible = false;
 				//}
 			}
-			
+
 
 		}
 
@@ -307,20 +305,20 @@ export function updateVisibility(pointclouds, camera, renderer){
 		}
 
 		if (node.isTreeNode()) {
-			exports.lru.touch(node.geometryNode);
+			Potree.lru.touch(node.geometryNode);
 			node.sceneNode.visible = true;
 			node.sceneNode.material = pointcloud.material;
 
 			visibleNodes.push(node);
 			pointcloud.visibleNodes.push(node);
 
-			if(node._transformVersion === undefined){
+			if (node._transformVersion === undefined) {
 				node._transformVersion = -1;
 			}
 			let transformVersion = pointcloudTransformVersion.get(pointcloud);
-			if(node._transformVersion !== transformVersion.number){
+			if (node._transformVersion !== transformVersion.number) {
 				node.sceneNode.updateMatrix();
-				node.sceneNode.matrixWorld.multiplyMatrices(pointcloud.matrixWorld, node.sceneNode.matrix);	
+				node.sceneNode.matrixWorld.multiplyMatrices(pointcloud.matrixWorld, node.sceneNode.matrix);
 				node._transformVersion = transformVersion.number;
 			}
 
@@ -336,12 +334,6 @@ export function updateVisibility(pointclouds, camera, renderer){
 			} else if (!pointcloud.showBoundingBox && node.boundingBoxNode) {
 				node.boundingBoxNode.visible = false;
 			}
-
-			// if(node.boundingBoxNode !== undefined && exports.debug.allowedNodes !== undefined){
-			// 	if(!exports.debug.allowedNodes.includes(node.name)){
-			// 		node.boundingBoxNode.visible = false;
-			// 	}
-			// }
 		}
 
 		// add child nodes to priorityQueue
@@ -349,39 +341,39 @@ export function updateVisibility(pointclouds, camera, renderer){
 		for (let i = 0; i < children.length; i++) {
 			let child = children[i];
 
-			let weight = 0; 
-			if(camera.isPerspectiveCamera){
+			let weight = 0;
+			if (camera.isPerspectiveCamera) {
 				let sphere = child.getBoundingSphere();
 				let center = sphere.center;
 				//let distance = sphere.center.distanceTo(camObjPos);
-				
+
 				let dx = camObjPos.x - center.x;
 				let dy = camObjPos.y - center.y;
 				let dz = camObjPos.z - center.z;
-				
+
 				let dd = dx * dx + dy * dy + dz * dz;
 				let distance = Math.sqrt(dd);
-				
-				
+
+
 				let radius = sphere.radius;
-				
+
 				let fov = (camera.fov * Math.PI) / 180;
 				let slope = Math.tan(fov / 2);
 				let projFactor = (0.5 * domHeight) / (slope * distance);
 				let screenPixelRadius = radius * projFactor;
-				
-				if(screenPixelRadius < pointcloud.minimumNodePixelSize){
+
+				if (screenPixelRadius < pointcloud.minimumNodePixelSize) {
 					continue;
 				}
-			
+
 				weight = screenPixelRadius;
 
-				if(distance - radius < 0){
+				if (distance - radius < 0) {
 					weight = Number.MAX_VALUE;
 				}
 			} else {
 				// TODO ortho visibility
-				let bb = child.getBoundingBox();				
+				let bb = child.getBoundingBox();
 				let distance = child.getBoundingSphere().center.distanceTo(camObjPos);
 				let diagonal = bb.max.clone().sub(bb.min).length();
 				//weight = diagonal / distance;
@@ -389,7 +381,7 @@ export function updateVisibility(pointclouds, camera, renderer){
 				weight = diagonal;
 			}
 
-			priorityQueue.push({pointcloud: element.pointcloud, node: child, parent: node, weight: weight});
+			priorityQueue.push({ pointcloud: element.pointcloud, node: child, parent: node, weight: weight });
 		}
 	}// end priority queue loop
 

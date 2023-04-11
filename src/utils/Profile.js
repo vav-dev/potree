@@ -1,10 +1,10 @@
 
-import * as THREE from "../../libs/three.js/build/three.module.js";
-import {Utils} from "../utils.js";
+import * as THREE from "three/src/Three";
+import { Utils } from "../utils.js";
 
-export class Profile extends THREE.Object3D{
+export class Profile extends THREE.Object3D {
 
-	constructor () {
+	constructor() {
 		super();
 
 		this.constructor.counter = (this.constructor.counter === undefined) ? 0 : this.constructor.counter + 1;
@@ -23,35 +23,36 @@ export class Profile extends THREE.Object3D{
 		this.lineColor = new THREE.Color(0xff0000);
 	}
 
-	createSphereMaterial () {
+	createSphereMaterial() {
 		let sphereMaterial = new THREE.MeshLambertMaterial({
 			//shading: THREE.SmoothShading,
 			color: 0xff0000,
 			depthTest: false,
-			depthWrite: false}
+			depthWrite: false
+		}
 		);
 
 		return sphereMaterial;
 	};
 
-	getSegments () {
+	getSegments() {
 		let segments = [];
 
 		for (let i = 0; i < this.points.length - 1; i++) {
 			let start = this.points[i].clone();
 			let end = this.points[i + 1].clone();
-			segments.push({start: start, end: end});
+			segments.push({ start: start, end: end });
 		}
 
 		return segments;
 	}
 
-	getSegmentMatrices () {
+	getSegmentMatrices() {
 		let segments = this.getSegments();
 		let matrices = [];
 
 		for (let segment of segments) {
-			let {start, end} = segment;
+			let { start, end } = segment;
 
 			let box = new THREE.Object3D();
 
@@ -74,7 +75,7 @@ export class Profile extends THREE.Object3D{
 		return matrices;
 	}
 
-	addMarker (point) {
+	addMarker(point) {
 		this.points.push(point);
 
 		let sphere = new THREE.Mesh(this.sphereGeometry, this.createSphereMaterial());
@@ -101,7 +102,7 @@ export class Profile extends THREE.Object3D{
 			this.edges.push(edge);
 
 			let boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-			let boxMaterial = new THREE.MeshBasicMaterial({color: 0xff0000, transparent: true, opacity: 0.2});
+			let boxMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.2 });
 			let box = new THREE.Mesh(boxGeometry, boxMaterial);
 			box.visible = false;
 
@@ -112,9 +113,9 @@ export class Profile extends THREE.Object3D{
 		{ // event listeners
 			let drag = (e) => {
 				let I = Utils.getMousePointCloudIntersection(
-					e.drag.end, 
-					e.viewer.scene.getActiveCamera(), 
-					e.viewer, 
+					e.drag.end,
+					e.viewer.scene.getActiveCamera(),
+					e.viewer,
 					e.viewer.scene.pointclouds);
 
 				if (I) {
@@ -160,7 +161,7 @@ export class Profile extends THREE.Object3D{
 		this.setPosition(this.points.length - 1, point);
 	}
 
-	removeMarker (index) {
+	removeMarker(index) {
 		this.points.splice(index, 1);
 
 		this.remove(this.spheres[index]);
@@ -181,14 +182,14 @@ export class Profile extends THREE.Object3D{
 		});
 	}
 
-	setPosition (index, position) {
+	setPosition(index, position) {
 		let point = this.points[index];
 		point.copy(position);
 
 		let event = {
 			type: 'marker_moved',
-			profile:	this,
-			index:	index,
+			profile: this,
+			index: index,
 			position: point.clone()
 		};
 		this.dispatchEvent(event);
@@ -196,24 +197,24 @@ export class Profile extends THREE.Object3D{
 		this.update();
 	}
 
-	setWidth (width) {
+	setWidth(width) {
 		this.width = width;
 
 		let event = {
 			type: 'width_changed',
-			profile:	this,
-			width:	width
+			profile: this,
+			width: width
 		};
 		this.dispatchEvent(event);
 
 		this.update();
 	}
 
-	getWidth () {
+	getWidth() {
 		return this.width;
 	}
 
-	update () {
+	update() {
 		if (this.points.length === 0) {
 			return;
 		} else if (this.points.length === 1) {
@@ -293,7 +294,7 @@ export class Profile extends THREE.Object3D{
 		}
 	}
 
-	raycast (raycaster, intersects) {
+	raycast(raycaster, intersects) {
 		for (let i = 0; i < this.points.length; i++) {
 			let sphere = this.spheres[i];
 
@@ -311,11 +312,11 @@ export class Profile extends THREE.Object3D{
 		intersects.sort(function (a, b) { return a.distance - b.distance; });
 	};
 
-	get modifiable () {
+	get modifiable() {
 		return this._modifiable;
 	}
 
-	set modifiable (value) {
+	set modifiable(value) {
 		this._modifiable = value;
 		this.update();
 	}

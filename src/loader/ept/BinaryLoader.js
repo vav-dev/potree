@@ -1,6 +1,6 @@
 
-import * as THREE from "../../../libs/three.js/build/three.module.js";
-import {XHRFactory} from "../../XHRFactory.js";
+import * as THREE from "three/src/Three";
+import { XHRFactory } from "../../XHRFactory.js";
 
 export class EptBinaryLoader {
 	extension() {
@@ -43,7 +43,7 @@ export class EptBinaryLoader {
 		let workerPath = this.workerPath();
 		let worker = Potree.workerPool.getWorker(workerPath);
 
-		worker.onmessage = function(e) {
+		worker.onmessage = function (e) {
 			let g = new THREE.BufferGeometry();
 			let numPoints = e.data.numPoints;
 
@@ -60,27 +60,27 @@ export class EptBinaryLoader {
 			if (e.data.intensity) {
 				let intensity = new Float32Array(e.data.intensity);
 				g.setAttribute('intensity',
-						new THREE.BufferAttribute(intensity, 1));
+					new THREE.BufferAttribute(intensity, 1));
 			}
 			if (e.data.classification) {
 				let classification = new Uint8Array(e.data.classification);
 				g.setAttribute('classification',
-						new THREE.BufferAttribute(classification, 1));
+					new THREE.BufferAttribute(classification, 1));
 			}
 			if (e.data.returnNumber) {
 				let returnNumber = new Uint8Array(e.data.returnNumber);
 				g.setAttribute('return number',
-						new THREE.BufferAttribute(returnNumber, 1));
+					new THREE.BufferAttribute(returnNumber, 1));
 			}
 			if (e.data.numberOfReturns) {
 				let numberOfReturns = new Uint8Array(e.data.numberOfReturns);
 				g.setAttribute('number of returns',
-						new THREE.BufferAttribute(numberOfReturns, 1));
+					new THREE.BufferAttribute(numberOfReturns, 1));
 			}
 			if (e.data.pointSourceId) {
 				let pointSourceId = new Uint16Array(e.data.pointSourceId);
 				g.setAttribute('source id',
-						new THREE.BufferAttribute(pointSourceId, 1));
+					new THREE.BufferAttribute(pointSourceId, 1));
 			}
 
 			g.attributes.indices.normalized = true;
@@ -91,12 +91,14 @@ export class EptBinaryLoader {
 			);
 
 			node.doneLoading(
-					g,
-					tightBoundingBox,
-					numPoints,
-					new THREE.Vector3(...e.data.mean));
+				g,
+				tightBoundingBox,
+				numPoints,
+				new THREE.Vector3(...e.data.mean));
 
 			Potree.workerPool.returnWorker(workerPath, worker);
+
+			Potree.needRender();
 		};
 
 		let toArray = (v) => [v.x, v.y, v.z];

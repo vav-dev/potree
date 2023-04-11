@@ -1,50 +1,50 @@
 
-import * as THREE from "../libs/three.js/build/three.module.js";
+import * as THREE from "three/src/Three";
 import { EventDispatcher } from "./EventDispatcher.js";
 
 
-export class PointCloudTreeNode extends EventDispatcher{
+export class PointCloudTreeNode extends EventDispatcher {
 
-	constructor(){
+	constructor() {
 		super();
 		this.needsTransformUpdate = true;
 	}
 
-	getChildren () {
+	getChildren() {
 		throw new Error('override function');
 	}
 
-	getBoundingBox () {
+	getBoundingBox() {
 		throw new Error('override function');
 	}
 
-	isLoaded () {
+	isLoaded() {
 		throw new Error('override function');
 	}
 
-	isGeometryNode () {
+	isGeometryNode() {
 		throw new Error('override function');
 	}
 
-	isTreeNode () {
+	isTreeNode() {
 		throw new Error('override function');
 	}
 
-	getLevel () {
+	getLevel() {
 		throw new Error('override function');
 	}
 
-	getBoundingSphere () {
+	getBoundingSphere() {
 		throw new Error('override function');
 	}
 };
 
 export class PointCloudTree extends THREE.Object3D {
-	constructor () {
+	constructor() {
 		super();
 	}
 
-	initialized () {
+	initialized() {
 		return this.root !== null;
 	}
 };

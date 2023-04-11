@@ -1,13 +1,13 @@
 
-import * as THREE from "../../../libs/three.js/build/three.module.js";
+import * as THREE from "three/src/Three";
 import { EventDispatcher } from "../../EventDispatcher.js";
-import {TextSprite} from "../../TextSprite.js";
+import { TextSprite } from "../../TextSprite.js";
 
 let sg = new THREE.SphereGeometry(1, 8, 8);
 let sgHigh = new THREE.SphereGeometry(1, 128, 128);
 
-let sm = new THREE.MeshBasicMaterial({side: THREE.BackSide});
-let smHovered = new THREE.MeshBasicMaterial({side: THREE.BackSide, color: 0xff0000});
+let sm = new THREE.MeshBasicMaterial({ side: THREE.BackSide });
+let smHovered = new THREE.MeshBasicMaterial({ side: THREE.BackSide, color: 0xff0000 });
 
 let raycaster = new THREE.Raycaster();
 let currentlyHovered = null;
@@ -18,9 +18,9 @@ let previousView = {
 	target: null,
 };
 
-class Image360{
+class Image360 {
 
-	constructor(file, time, longitude, latitude, altitude, course, pitch, roll){
+	constructor(file, time, longitude, latitude, altitude, course, pitch, roll) {
 		this.file = file;
 		this.time = time;
 		this.longitude = longitude;
@@ -33,9 +33,9 @@ class Image360{
 	}
 };
 
-export class Images360 extends EventDispatcher{
+export class Images360 extends EventDispatcher {
 
-	constructor(viewer){
+	constructor(viewer) {
 		super();
 
 		this.viewer = viewer;
@@ -75,20 +75,20 @@ export class Images360 extends EventDispatcher{
 		viewer.inputHandler.addInputListener(this);
 
 		this.addEventListener("mousedown", () => {
-			if(currentlyHovered && currentlyHovered.image360){
+			if (currentlyHovered && currentlyHovered.image360) {
 				this.focus(currentlyHovered.image360);
 			}
 		});
-		
+
 	};
 
-	set visible(visible){
-		if(this._visible === visible){
+	set visible(visible) {
+		if (this._visible === visible) {
 			return;
 		}
 
 
-		for(const image of this.images){
+		for (const image of this.images) {
 			image.mesh.visible = visible && (this.focusedImage == null);
 		}
 
@@ -100,12 +100,12 @@ export class Images360 extends EventDispatcher{
 		});
 	}
 
-	get visible(){
+	get visible() {
 		return this._visible;
 	}
 
-	focus(image360){
-		if(this.focusedImage !== null){
+	focus(image360) {
+		if (this.focusedImage !== null) {
 			this.unfocus();
 		}
 
@@ -118,7 +118,7 @@ export class Images360 extends EventDispatcher{
 		this.viewer.setControls(this.viewer.orbitControls);
 		this.viewer.orbitControls.doubleClockZoomEnabled = false;
 
-		for(let image of this.images){
+		for (let image of this.images) {
 			image.mesh.visible = false;
 		}
 
@@ -126,14 +126,14 @@ export class Images360 extends EventDispatcher{
 
 		this.sphere.visible = false;
 
-		this.load(image360).then( () => {
+		this.load(image360).then(() => {
 			this.sphere.visible = true;
 			this.sphere.material.map = image360.texture;
 			this.sphere.material.needsUpdate = true;
 		});
 
 		{ // orientation
-			let {course, pitch, roll} = image360;
+			let { course, pitch, roll } = image360;
 			this.sphere.rotation.set(
 				THREE.Math.degToRad(+roll + 90),
 				THREE.Math.degToRad(-pitch),
@@ -150,7 +150,7 @@ export class Images360 extends EventDispatcher{
 		let newCamPos = target.clone().sub(move);
 
 		viewer.scene.view.setView(
-			newCamPos, 
+			newCamPos,
 			target,
 			500
 		);
@@ -160,16 +160,16 @@ export class Images360 extends EventDispatcher{
 		this.elUnfocus.style.display = "";
 	}
 
-	unfocus(){
+	unfocus() {
 		this.selectingEnabled = true;
 
-		for(let image of this.images){
+		for (let image of this.images) {
 			image.mesh.visible = true;
 		}
 
 		let image = this.focusedImage;
 
-		if(image === null){
+		if (image === null) {
 			return;
 		}
 
@@ -188,7 +188,7 @@ export class Images360 extends EventDispatcher{
 		viewer.setControls(previousView.controls);
 
 		viewer.scene.view.setView(
-			previousView.position, 
+			previousView.position,
 			previousView.target,
 			500
 		);
@@ -199,7 +199,7 @@ export class Images360 extends EventDispatcher{
 		this.elUnfocus.style.display = "none";
 	}
 
-	load(image360){
+	load(image360) {
 
 		return new Promise(resolve => {
 			let texture = new THREE.TextureLoader().load(image360.file, resolve);
@@ -211,7 +211,7 @@ export class Images360 extends EventDispatcher{
 
 	}
 
-	handleHovering(){
+	handleHovering() {
 		let mouse = viewer.inputHandler.mouse;
 		let camera = viewer.scene.getActiveCamera();
 		let domElement = viewer.renderer.domElement;
@@ -222,7 +222,7 @@ export class Images360 extends EventDispatcher{
 		raycaster.ray.copy(ray);
 		let intersections = raycaster.intersectObjects(this.node.children);
 
-		if(intersections.length === 0){
+		if (intersections.length === 0) {
 			// label.visible = false;
 
 			return;
@@ -237,16 +237,16 @@ export class Images360 extends EventDispatcher{
 		//currentlyHovered.getWorldPosition(label.position);
 	}
 
-	update(){
+	update() {
 
-		let {viewer} = this;
+		let { viewer } = this;
 
-		if(currentlyHovered){
+		if (currentlyHovered) {
 			currentlyHovered.material = sm;
 			currentlyHovered = null;
 		}
 
-		if(this.selectingEnabled){
+		if (this.selectingEnabled) {
 			this.handleHovering();
 		}
 
@@ -255,16 +255,16 @@ export class Images360 extends EventDispatcher{
 };
 
 
-export class Images360Loader{
+export class Images360Loader {
 
-	static async load(url, viewer, params = {}){
+	static async load(url, viewer, params = {}) {
 
-		if(!params.transform){
+		if (!params.transform) {
 			params.transform = {
 				forward: a => a,
 			};
 		}
-		
+
 		let response = await fetch(`${url}/coordinates.txt`);
 		let text = await response.text();
 
@@ -273,9 +273,9 @@ export class Images360Loader{
 
 		let images360 = new Images360(viewer);
 
-		for(let line of coordinateLines){
+		for (let line of coordinateLines) {
 
-			if(line.trim().length === 0){
+			if (line.trim().length === 0) {
 				continue;
 			}
 
@@ -308,10 +308,10 @@ export class Images360Loader{
 
 	}
 
-	static createSceneNodes(images360, transform){
+	static createSceneNodes(images360, transform) {
 
-		for(let image360 of images360.images){
-			let {longitude, latitude, altitude} = image360;
+		for (let image360 of images360.images) {
+			let { longitude, latitude, altitude } = image360;
 			let xy = transform.forward([longitude, latitude]);
 
 			let mesh = new THREE.Mesh(sg, sm);
@@ -322,7 +322,7 @@ export class Images360Loader{
 			mesh.image360 = image360;
 
 			{ // orientation
-				var {course, pitch, roll} = image360;
+				var { course, pitch, roll } = image360;
 				mesh.rotation.set(
 					THREE.Math.degToRad(+roll + 90),
 					THREE.Math.degToRad(-pitch),
@@ -337,7 +337,7 @@ export class Images360Loader{
 		}
 	}
 
-	
+
 
 };
 

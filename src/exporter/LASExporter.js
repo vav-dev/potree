@@ -1,8 +1,8 @@
 
-import * as THREE from "../../libs/three.js/build/three.module.js";
+import * as THREE from "three/src/Three";
 
 export class LASExporter {
-	static toLAS (points) {
+	static toLAS(points) {
 		// TODO Unused: let string = '';
 
 		let boundingBox = points.boundingBox;
@@ -146,5 +146,5 @@ export class LASExporter {
 
 		return buffer;
 	}
-	
+
 }

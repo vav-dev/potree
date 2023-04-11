@@ -1,15 +1,15 @@
 
-import * as THREE from "../libs/three.js/build/three.module.js";
+import * as THREE from "three/src/Three";
 
 export class Points {
-	
-	constructor () {
+
+	constructor() {
 		this.boundingBox = new THREE.Box3();
 		this.numPoints = 0;
 		this.data = {};
 	}
 
-	add (points) {
+	add(points) {
 		let currentSize = this.numPoints;
 		let additionalSize = points.numPoints;
 		let newSize = currentSize + additionalSize;

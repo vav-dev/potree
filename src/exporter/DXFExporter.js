@@ -6,12 +6,12 @@
  *
  */
 
-import * as THREE from "../../libs/three.js/build/three.module.js";
-import {Measure} from "../utils/Measure.js";
+import * as THREE from "three/src/Three";
+import { Measure } from "../utils/Measure.js";
 
 export class DXFExporter {
 
-	static measurementPointSection (measurement) {
+	static measurementPointSection(measurement) {
 		let position = measurement.points[0].position;
 
 		if (!position) {
@@ -35,7 +35,7 @@ ${position.z}
 		return dxfSection;
 	}
 
-	static measurementPolylineSection (measurement) {
+	static measurementPolylineSection(measurement) {
 		// bit code for polygons/polylines:
 		// https://www.autodesk.com/techpubs/autocad/acad2000/dxf/polyline_dxf_06.htm
 		let geomCode = 8;
@@ -91,7 +91,7 @@ SEQEND
 		return dxfSection;
 	}
 
-	static measurementSection (measurement) {
+	static measurementSection(measurement) {
 		// if(measurement.points.length <= 1){
 		//	return "";
 		// }
@@ -105,7 +105,7 @@ SEQEND
 		}
 	}
 
-	static toString(measurements){
+	static toString(measurements) {
 		if (!(measurements instanceof Array)) {
 			measurements = [measurements];
 		}

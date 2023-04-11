@@ -17,6 +17,8 @@ attribute float spacing;
 attribute float gpsTime;
 attribute vec3 normal;
 attribute float aExtra;
+attribute vec2 segmentation;
+attribute float flyvastClassification;
 
 uniform mat4 modelMatrix;
 uniform mat4 modelViewMatrix;
@@ -121,6 +123,10 @@ uniform bool backfaceCulling;
 uniform sampler2D uShadowMap[num_shadowmaps];
 uniform mat4 uShadowWorldView[num_shadowmaps];
 uniform mat4 uShadowProj[num_shadowmaps];
+#endif
+
+#if defined segmentation_index && defined(num_segmentation_index) && num_segmentation_index > 0
+uniform mat4 segmentationIndex[num_segmentation_index];
 #endif
 
 varying vec3	vColor;
@@ -600,6 +606,148 @@ vec3 getExtra(){
 	return color;
 }
 
+#if defined color_type_segmentation
+
+vec3 getSegmentation() {
+	vec3 color = vec3(0.0, 0.0, 0.0);
+
+#if defined segmentation_level_1
+	#if defined segmentation_index
+
+	bool found = false;
+	for (int k = 0; k < num_segmentation_index; k++) {
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				if (segmentation[0] == segmentationIndex[k][i][j]) {
+					found = true;
+				}
+			}
+		}
+	}
+
+	if (found) {
+		color = vec3(1.0, 1.0, 1.0);
+	} else if (segmentation[0] == 0.0) {
+
+	#else
+
+	if (segmentation[0] == 0.0) {
+
+	#endif
+#elif defined segmentation_level_2
+	#if defined segmentation_index
+
+	bool found = false;
+	for (int k = 0; k < num_segmentation_index; k++) {
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				if (segmentation[1] == segmentationIndex[k][i][j]) {
+					found = true;
+				}
+			}
+		}
+	}
+
+	if (found) {
+		color = vec3(1.0, 1.0, 1.0);
+	} else if (segmentation[1] == 0.0) {
+
+	#else
+
+	if (segmentation[1] == 0.0) {
+
+	#endif
+#elif defined segmentation_level_3
+	#if defined segmentation_index
+
+	bool found = false;
+	for (int k = 0; k < num_segmentation_index; k++) {
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				if (flyvastClassification == segmentationIndex[k][i][j]) {
+					found = true;
+				}
+			}
+		}
+	}
+
+	if (found) {
+		color = vec3(1.0, 1.0, 1.0);
+	} else if (flyvastClassification == -1.0) {
+
+	#else
+
+	if (flyvastClassification == -1.0) {
+
+	#endif
+#endif
+		color = vec3(0.0, 0.0, 0.0);
+	} else {
+		int colorsNumber = 49;
+
+#if defined segmentation_level_1
+		int colorIndex = int(mod(segmentation[0], float(colorsNumber)));
+#elif defined segmentation_level_2
+		int colorIndex = int(mod(segmentation[1], float(colorsNumber)));
+#elif defined segmentation_level_3
+		int colorIndex = int(mod(flyvastClassification, float(colorsNumber)));
+#endif
+		if (colorIndex == 0) color = vec3(30. / 255., 56. / 255., 136. / 255.);
+		if (colorIndex == 1) color = vec3(71. / 255., 168. / 255., 189. / 255.);
+		if (colorIndex == 2) color = vec3(245. / 255., 230. / 255., 99. / 255.);
+		if (colorIndex == 3) color = vec3(255. / 255., 173. / 255., 105. / 255.);
+		if (colorIndex == 4) color = vec3(156. / 255., 56. / 255., 72. / 255.);
+		if (colorIndex == 5) color = vec3(14. / 255., 32. / 255., 70. / 255.);
+		if (colorIndex == 6) color = vec3(162. / 255., 174. / 255., 187. / 255.);
+		if (colorIndex == 7) color = vec3(223. / 255., 224. / 255., 226. / 255.);
+		if (colorIndex == 8) color = vec3(142. / 255., 59. / 255., 70. / 255.);
+		if (colorIndex == 9) color = vec3(224. / 255., 119. / 255., 125. / 255.);
+		if (colorIndex == 10) color = vec3(36. / 255., 30. / 255., 78. / 255.);
+		if (colorIndex == 11) color = vec3(150. / 255., 2. / 255., 0. / 255.);
+		if (colorIndex == 12) color = vec3(206. / 255., 108. / 255., 71. / 255.);
+		if (colorIndex == 13) color = vec3(255. / 255., 208. / 255., 70. / 255.);
+		if (colorIndex == 14) color = vec3(234. / 255., 218. / 255., 162. / 255.);
+		if (colorIndex == 15) color = vec3(255. / 255., 175. / 255., 135. / 255.);
+		if (colorIndex == 16) color = vec3(255. / 255., 142. / 255., 114. / 255.);
+		if (colorIndex == 17) color = vec3(76. / 255., 224. / 255., 179. / 255.);
+		if (colorIndex == 18) color = vec3(55. / 255., 119. / 255., 113. / 255.);
+		if (colorIndex == 19) color = vec3(148. / 255., 185. / 255., 175. / 255.);
+		if (colorIndex == 20) color = vec3(211. / 255., 63. / 255., 73. / 255.);
+		if (colorIndex == 21) color = vec3(215. / 255., 192. / 255., 208. / 255.);
+		if (colorIndex == 22) color = vec3(239. / 255., 240. / 255., 209. / 255.);
+		if (colorIndex == 23) color = vec3(119. / 255., 186. / 255., 153. / 255.);
+		if (colorIndex == 24) color = vec3(38. / 255., 39. / 255., 48. / 255.);
+		if (colorIndex == 25) color = vec3(23. / 255., 86. / 255., 118. / 255.);
+		if (colorIndex == 26) color = vec3(75. / 255., 163. / 255., 195. / 255.);
+		if (colorIndex == 27) color = vec3(204. / 255., 230. / 255., 244. / 255.);
+		if (colorIndex == 28) color = vec3(0. / 255., 48. / 255., 73. / 255.); 
+		if (colorIndex == 29) color = vec3(247. / 255., 127. / 255., 0. / 255.);
+		if (colorIndex == 30) color = vec3(46. / 255., 82. / 255., 102. / 255.);
+		if (colorIndex == 31) color = vec3(110. / 255., 136. / 255., 152. / 255.);
+		if (colorIndex == 32) color = vec3(159. / 255., 177. / 255., 188. / 255.);
+		if (colorIndex == 33) color = vec3(211. / 255., 208. / 255., 203. / 255.);
+		if (colorIndex == 34) color = vec3(226. / 255., 192. / 255., 68. / 255.);
+		if (colorIndex == 35) color = vec3(186. / 255., 143. / 255., 149. / 255.);
+		if (colorIndex == 36) color = vec3(195. / 255., 219. / 255., 197. / 255.);
+		if (colorIndex == 37) color = vec3(232. / 255., 220. / 255., 185. / 255.);
+		if (colorIndex == 38) color = vec3(242. / 255., 206. / 255., 230. / 255.);
+		if (colorIndex == 39) color = vec3(189. / 255., 217. / 255., 191. / 255.);
+		if (colorIndex == 40) color = vec3(62. / 255., 68. / 255., 43. / 255.);
+		if (colorIndex == 41) color = vec3(106. / 255., 112. / 255., 98. / 255.);
+		if (colorIndex == 42) color = vec3(141. / 255., 144. / 255., 155. / 255.);
+		if (colorIndex == 43) color = vec3(170. / 255., 173. / 255., 196. / 255.);
+		if (colorIndex == 44) color = vec3(214. / 255., 238. / 255., 255. / 255.);
+		if (colorIndex == 45) color = vec3(125. / 255., 128. / 255., 218. / 255.);
+		if (colorIndex == 46) color = vec3(176. / 255., 163. / 255., 212. / 255.);
+		if (colorIndex == 47) color = vec3(206. / 255., 186. / 255., 207. / 255.);
+		if (colorIndex == 48) color = vec3(198. / 255., 175. / 255., 177. / 255.);
+		if (colorIndex == 49) color = vec3(13. / 255., 27. / 255., 30. / 255.);
+	}
+
+	return color;
+}
+#endif
+
 vec3 getColor(){
 	vec3 color;
 	
@@ -652,6 +800,8 @@ vec3 getColor(){
 		color = getCompositeColor();
 	#elif defined color_type_matcap
 		color = getMatcap();
+	#elif defined color_type_segmentation
+		color = getSegmentation();
 	#else 
 		color = getExtra();
 	#endif

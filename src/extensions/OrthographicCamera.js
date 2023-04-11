@@ -1,9 +1,9 @@
 
-import * as THREE from "../../libs/three.js/build/three.module.js";
+import * as THREE from "three/src/Three";
 
-THREE.OrthographicCamera.prototype.zoomTo = function( node, factor = 1){
+THREE.OrthographicCamera.prototype.zoomTo = function (node, factor = 1) {
 
-	if ( !node.geometry && !node.boundingBox) {
+	if (!node.geometry && !node.boundingBox) {
 		return;
 	}
 
@@ -16,5 +16,5 @@ THREE.OrthographicCamera.prototype.zoomTo = function( node, factor = 1){
 	//let bottom	= node.boundingBox.min.y;
 	//let top = node.boundingBox.max.y;
 
-	this.updateProjectionMatrix();	
+	this.updateProjectionMatrix();
 };

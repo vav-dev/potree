@@ -1,12 +1,12 @@
 
-import * as THREE from "../../libs/three.js/build/three.module.js";
-import {Annotation} from "../Annotation.js";
-import {Utils} from "../utils.js";
-import {CameraMode} from "../defines.js";
-import {EventDispatcher} from "../EventDispatcher.js";
+import * as THREE from "three/src/Three";
+import { Annotation } from "../Annotation.js";
+import { Utils } from "../utils.js";
+import { CameraMode } from "../defines.js";
+import { EventDispatcher } from "../EventDispatcher.js";
 
-export class AnnotationTool extends EventDispatcher{
-	constructor (viewer) {
+export class AnnotationTool extends EventDispatcher {
+	constructor(viewer) {
 		super();
 
 		this.viewer = viewer;
@@ -17,7 +17,7 @@ export class AnnotationTool extends EventDispatcher{
 		this.s = new THREE.Mesh(this.sg, this.sm);
 	}
 
-	startInsertion (args = {}) {
+	startInsertion(args = {}) {
 		let domElement = this.viewer.renderer.domElement;
 
 		let annotation = new Annotation({
@@ -25,7 +25,7 @@ export class AnnotationTool extends EventDispatcher{
 			title: "Annotation Title",
 			description: `Annotation Description`
 		});
-		this.dispatchEvent({type: 'start_inserting_annotation', annotation: annotation});
+		this.dispatchEvent({ type: 'start_inserting_annotation', annotation: annotation });
 
 		const annotations = this.viewer.scene.annotations;
 		annotations.add(annotation);
@@ -57,11 +57,11 @@ export class AnnotationTool extends EventDispatcher{
 
 		let drag = (e) => {
 			let I = Utils.getMousePointCloudIntersection(
-				e.drag.end, 
-				e.viewer.scene.getActiveCamera(), 
-				e.viewer, 
+				e.drag.end,
+				e.viewer.scene.getActiveCamera(),
+				e.viewer,
 				e.viewer.scene.pointclouds,
-				{pickClipped: true});
+				{ pickClipped: true });
 
 			if (I) {
 				this.s.position.copy(I.location);
@@ -84,8 +84,8 @@ export class AnnotationTool extends EventDispatcher{
 
 		return annotation;
 	}
-	
-	update(){
+
+	update() {
 		// let camera = this.viewer.scene.getActiveCamera();
 		// let domElement = this.renderer.domElement;
 		// let measurements = this.viewer.scene.measurements;
@@ -96,7 +96,7 @@ export class AnnotationTool extends EventDispatcher{
 
 	}
 
-	render(){
+	render() {
 		//this.viewer.renderer.render(this.scene, this.viewer.scene.getActiveCamera());
 	}
 };

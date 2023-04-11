@@ -1,10 +1,10 @@
 
-import * as THREE from "../../libs/three.js/build/three.module.js";
-import {EventDispatcher} from "../EventDispatcher.js";
+import * as THREE from "three/src/Three";
+import { EventDispatcher } from "../EventDispatcher.js";
 
-Potree.PointCloudArena4DGeometryNode = class PointCloudArena4DGeometryNode{
+Potree.PointCloudArena4DGeometryNode = class PointCloudArena4DGeometryNode {
 
-	constructor(){
+	constructor() {
 		this.left = null;
 		this.right = null;
 		this.boundingBox = null;
@@ -17,27 +17,27 @@ Potree.PointCloudArena4DGeometryNode = class PointCloudArena4DGeometryNode{
 		this.oneTimeDisposeHandlers = [];
 	}
 
-	isGeometryNode(){
+	isGeometryNode() {
 		return true;
 	}
 
-	isTreeNode(){
+	isTreeNode() {
 		return false;
 	}
 
-	isLoaded(){
+	isLoaded() {
 		return this.loaded;
 	}
 
-	getBoundingSphere(){
+	getBoundingSphere() {
 		return this.boundingSphere;
 	}
 
-	getBoundingBox(){
+	getBoundingBox() {
 		return this.boundingBox;
 	}
 
-	getChildren(){
+	getChildren() {
 		let children = [];
 
 		if (this.left) {
@@ -51,15 +51,15 @@ Potree.PointCloudArena4DGeometryNode = class PointCloudArena4DGeometryNode{
 		return children;
 	}
 
-	getBoundingBox(){
+	getBoundingBox() {
 		return this.boundingBox;
 	}
 
-	getLevel(){
+	getLevel() {
 		return this.level;
 	}
 
-	load(){
+	load() {
 		if (this.loaded || this.loading) {
 			return;
 		}
@@ -150,7 +150,7 @@ Potree.PointCloudArena4DGeometryNode = class PointCloudArena4DGeometryNode{
 				//bufferAttribute.normalized = true;
 				geometry.setAttribute('indices', bufferAttribute);
 			}
-		
+
 			node.geometry = geometry;
 			node.numPoints = numPoints;
 			node.loaded = true;
@@ -161,7 +161,7 @@ Potree.PointCloudArena4DGeometryNode = class PointCloudArena4DGeometryNode{
 		xhr.send(null);
 	}
 
-	dispose(){
+	dispose() {
 		if (this.geometry && this.parent != null) {
 			this.geometry.dispose();
 			this.geometry = null;
@@ -176,7 +176,7 @@ Potree.PointCloudArena4DGeometryNode = class PointCloudArena4DGeometryNode{
 		}
 	}
 
-	getNumPoints(){
+	getNumPoints() {
 		return this.numPoints;
 	}
 };
@@ -185,9 +185,9 @@ Potree.PointCloudArena4DGeometryNode = class PointCloudArena4DGeometryNode{
 
 
 
-Potree.PointCloudArena4DGeometry = class PointCloudArena4DGeometry extends EventDispatcher{
+Potree.PointCloudArena4DGeometry = class PointCloudArena4DGeometry extends EventDispatcher {
 
-	constructor(){
+	constructor() {
 		super();
 
 		this.numPoints = 0;
@@ -255,7 +255,7 @@ Potree.PointCloudArena4DGeometry = class PointCloudArena4DGeometry extends Event
 		xhr.send(null);
 	};
 
-	loadHierarchy(){
+	loadHierarchy() {
 		let url = this.url + '?tree';
 		let xhr = Potree.XHRFactory.createXMLHttpRequest();
 		xhr.open('GET', url, true);
@@ -267,7 +267,7 @@ Potree.PointCloudArena4DGeometry = class PointCloudArena4DGeometry extends Event
 			}
 
 			let buffer = xhr.response;
-			let numNodes = buffer.byteLength /	3;
+			let numNodes = buffer.byteLength / 3;
 			let view = new DataView(buffer);
 			let stack = [];
 			let root = null;
@@ -377,13 +377,13 @@ Potree.PointCloudArena4DGeometry = class PointCloudArena4DGeometry extends Event
 			this.levels = levels;
 			// console.log(this.root);
 
-			this.dispatchEvent({type: 'hierarchy_loaded'});
+			this.dispatchEvent({ type: 'hierarchy_loaded' });
 		};
 
 		xhr.send(null);
 	};
 
-	get spacing(){
+	get spacing() {
 		if (this._spacing) {
 			return this._spacing;
 		} else if (this.root) {
@@ -393,7 +393,7 @@ Potree.PointCloudArena4DGeometry = class PointCloudArena4DGeometry extends Event
 		}
 	}
 
-	set spacing(value){
+	set spacing(value) {
 		this._spacing = value;
 	}
 

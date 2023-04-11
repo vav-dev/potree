@@ -1,14 +1,14 @@
 
-import * as THREE from "../../libs/three.js/build/three.module.js";
-import {PointCloudOctreeGeometry, PointCloudOctreeGeometryNode} from "../PointCloudOctreeGeometry.js";
-import {Version} from "../Version.js";
-import {XHRFactory} from "../XHRFactory.js";
-import {LasLazLoader} from "./LasLazLoader.js";
-import {BinaryLoader} from "./BinaryLoader.js";
-import {Utils} from "../utils.js";
-import {PointAttribute, PointAttributes, PointAttributeTypes} from "./PointAttributes.js";
+import * as THREE from "three/src/Three";
+import { PointCloudOctreeGeometry, PointCloudOctreeGeometryNode } from "../PointCloudOctreeGeometry.js";
+import { Version } from "../Version.js";
+import { XHRFactory } from "../XHRFactory.js";
+import { LasLazLoader } from "./LasLazLoader.js";
+import { BinaryLoader } from "./BinaryLoader.js";
+import { Utils } from "../utils.js";
+import { PointAttribute, PointAttributes, PointAttributeTypes } from "./PointAttributes.js";
 
-function parseAttributes(cloudjs){
+function parseAttributes(cloudjs) {
 
 	let version = new Version(cloudjs.version);
 
@@ -21,17 +21,17 @@ function parseAttributes(cloudjs){
 	};
 
 	const replaceOldNames = (old) => {
-		if(replacements[old]){
+		if (replacements[old]) {
 			return replacements[old];
-		}else{
+		} else {
 			return old;
 		}
 	};
 
 	const pointAttributes = [];
-	if(version.upTo('1.7')){
-		
-		for(let attributeName of cloudjs.pointAttributes){
+	if (version.upTo('1.7')) {
+
+		for (let attributeName of cloudjs.pointAttributes) {
 			const oldAttribute = PointAttribute[attributeName];
 
 			const attribute = {
@@ -46,7 +46,7 @@ function parseAttributes(cloudjs){
 			pointAttributes.push(attribute);
 		}
 
-	}else{
+	} else {
 		pointAttributes.push(...cloudjs.pointAttributes);
 	}
 
@@ -55,19 +55,19 @@ function parseAttributes(cloudjs){
 		const attributes = new PointAttributes();
 
 		const typeConversion = {
-			int8:   PointAttributeTypes.DATA_TYPE_INT8,
-			int16:  PointAttributeTypes.DATA_TYPE_INT16,
-			int32:  PointAttributeTypes.DATA_TYPE_INT32,
-			int64:  PointAttributeTypes.DATA_TYPE_INT64,
-			uint8:  PointAttributeTypes.DATA_TYPE_UINT8,
+			int8: PointAttributeTypes.DATA_TYPE_INT8,
+			int16: PointAttributeTypes.DATA_TYPE_INT16,
+			int32: PointAttributeTypes.DATA_TYPE_INT32,
+			int64: PointAttributeTypes.DATA_TYPE_INT64,
+			uint8: PointAttributeTypes.DATA_TYPE_UINT8,
 			uint16: PointAttributeTypes.DATA_TYPE_UINT16,
 			uint32: PointAttributeTypes.DATA_TYPE_UINT32,
 			uint64: PointAttributeTypes.DATA_TYPE_UINT64,
 			double: PointAttributeTypes.DATA_TYPE_DOUBLE,
-			float:  PointAttributeTypes.DATA_TYPE_FLOAT,
+			float: PointAttributeTypes.DATA_TYPE_FLOAT,
 		};
 
-		for(const jsAttribute of pointAttributes){
+		for (const jsAttribute of pointAttributes) {
 			const name = replaceOldNames(jsAttribute.name);
 			const type = typeConversion[jsAttribute.type];
 			const numElements = jsAttribute.elements;
@@ -80,12 +80,12 @@ function parseAttributes(cloudjs){
 
 		{
 			// check if it has normals
-			let hasNormals = 
+			let hasNormals =
 				pointAttributes.find(a => a.name === "NormalX") !== undefined &&
 				pointAttributes.find(a => a.name === "NormalY") !== undefined &&
 				pointAttributes.find(a => a.name === "NormalZ") !== undefined;
 
-			if(hasNormals){
+			if (hasNormals) {
 				let vector = {
 					name: "NORMAL",
 					attributes: ["NormalX", "NormalY", "NormalZ"],
@@ -99,7 +99,7 @@ function parseAttributes(cloudjs){
 
 }
 
-function lasLazAttributes(fMno){
+function lasLazAttributes(fMno) {
 	const attributes = new PointAttributes();
 
 	attributes.add(PointAttribute.POSITION_CARTESIAN);
@@ -118,7 +118,7 @@ function lasLazAttributes(fMno){
 
 export class POCLoader {
 
-	static load(url, callback){
+	static load(url, callback) {
 		try {
 			let pco = new PointCloudOctreeGeometry();
 			pco.url = url;
@@ -233,7 +233,7 @@ export class POCLoader {
 		}
 	}
 
-	loadPointAttributes(mno){
+	loadPointAttributes(mno) {
 		let fpa = mno.pointAttributes;
 		let pa = new PointAttributes();
 
@@ -245,7 +245,7 @@ export class POCLoader {
 		return pa;
 	}
 
-	createChildAABB(aabb, index){
+	createChildAABB(aabb, index) {
 		let min = aabb.min.clone();
 		let max = aabb.max.clone();
 		let size = new THREE.Vector3().subVectors(max, min);

@@ -1,7 +1,7 @@
-import * as THREE from "../../libs/three.js/build/three.module.js";
+import * as THREE from "three/src/Three";
 
-export class View{
-	constructor () {
+export class View {
+	constructor() {
 		this.position = new THREE.Vector3(0, 0, 0);
 
 		this.yaw = Math.PI / 4;
@@ -12,7 +12,7 @@ export class View{
 		this.minPitch = -Math.PI / 2;
 	}
 
-	clone () {
+	clone() {
 		let c = new View();
 		c.yaw = this.yaw;
 		c._pitch = this.pitch;
@@ -23,15 +23,15 @@ export class View{
 		return c;
 	}
 
-	get pitch () {
+	get pitch() {
 		return this._pitch;
 	}
 
-	set pitch (angle) {
+	set pitch(angle) {
 		this._pitch = Math.max(Math.min(angle, this.maxPitch), this.minPitch);
 	}
 
-	get direction () {
+	get direction() {
 		let dir = new THREE.Vector3(0, 1, 0);
 
 		dir.applyAxisAngle(new THREE.Vector3(1, 0, 0), this.pitch);
@@ -40,26 +40,26 @@ export class View{
 		return dir;
 	}
 
-	set direction (dir) {
+	set direction(dir) {
 
 		//if(dir.x === dir.y){
-		if(dir.x === 0 && dir.y === 0){
+		if (dir.x === 0 && dir.y === 0) {
 			this.pitch = Math.PI / 2 * Math.sign(dir.z);
-		}else{
+		} else {
 			let yaw = Math.atan2(dir.y, dir.x) - Math.PI / 2;
 			let pitch = Math.atan2(dir.z, Math.sqrt(dir.x * dir.x + dir.y * dir.y));
 
 			this.yaw = yaw;
 			this.pitch = pitch;
 		}
-		
+
 	}
 
-	lookAt(t){
+	lookAt(t) {
 		let V;
-		if(arguments.length === 1){
+		if (arguments.length === 1) {
 			V = new THREE.Vector3().subVectors(t, this.position);
-		}else if(arguments.length === 3){
+		} else if (arguments.length === 3) {
 			V = new THREE.Vector3().subVectors(new THREE.Vector3(...arguments), this.position);
 		}
 
@@ -70,18 +70,18 @@ export class View{
 		this.direction = dir;
 	}
 
-	getPivot () {
+	getPivot() {
 		return new THREE.Vector3().addVectors(this.position, this.direction.multiplyScalar(this.radius));
 	}
 
-	getSide () {
+	getSide() {
 		let side = new THREE.Vector3(1, 0, 0);
 		side.applyAxisAngle(new THREE.Vector3(0, 0, 1), this.yaw);
 
 		return side;
 	}
 
-	pan (x, y) {
+	pan(x, y) {
 		let dir = new THREE.Vector3(0, 1, 0);
 		dir.applyAxisAngle(new THREE.Vector3(1, 0, 0), this.pitch);
 		dir.applyAxisAngle(new THREE.Vector3(0, 0, 1), this.yaw);
@@ -99,7 +99,7 @@ export class View{
 		// this.target = this.target.add(pan);
 	}
 
-	translate (x, y, z) {
+	translate(x, y, z) {
 		let dir = new THREE.Vector3(0, 1, 0);
 		dir.applyAxisAngle(new THREE.Vector3(1, 0, 0), this.pitch);
 		dir.applyAxisAngle(new THREE.Vector3(0, 0, 1), this.yaw);
@@ -116,28 +116,28 @@ export class View{
 		this.position = this.position.add(t);
 	}
 
-	translateWorld (x, y, z) {
+	translateWorld(x, y, z) {
 		this.position.x += x;
 		this.position.y += y;
 		this.position.z += z;
 	}
 
-	setView(position, target, duration = 0, callback = null){
+	setView(position, target, duration = 0, callback = null) {
 
 		let endPosition = null;
-		if(position instanceof Array){
+		if (position instanceof Array) {
 			endPosition = new THREE.Vector3(...position);
-		}else if(position.x != null){
+		} else if (position.x != null) {
 			endPosition = position.clone();
 		}
 
 		let endTarget = null;
-		if(target instanceof Array){
+		if (target instanceof Array) {
 			endTarget = new THREE.Vector3(...target);
-		}else if(target.x != null){
+		} else if (target.x != null) {
 			endTarget = target.clone();
 		}
-		
+
 		const startPosition = this.position.clone();
 		const startTarget = this.getPivot();
 
@@ -146,12 +146,12 @@ export class View{
 
 		let easing = TWEEN.Easing.Quartic.Out;
 
-		if(duration === 0){
+		if (duration === 0) {
 			this.position.copy(endPosition);
 			this.lookAt(endTarget);
-		}else{
-			let value = {x: 0};
-			let tween = new TWEEN.Tween(value).to({x: 1}, duration);
+		} else {
+			let value = { x: 0 };
+			let tween = new TWEEN.Tween(value).to({ x: 1 }, duration);
 			tween.easing(easing);
 			//this.tweens.push(tween);
 
@@ -180,7 +180,7 @@ export class View{
 			tween.start();
 
 			tween.onComplete(() => {
-				if(callback){
+				if (callback) {
 					callback();
 				}
 			});

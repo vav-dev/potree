@@ -1,11 +1,11 @@
 
-import * as THREE from "../../libs/three.js/build/three.module.js";
-import {Volume, BoxVolume} from "./Volume.js";
-import {Utils} from "../utils.js";
+import * as THREE from "three/src/Three";
+import { Volume, BoxVolume } from "./Volume.js";
+import { Utils } from "../utils.js";
 import { EventDispatcher } from "../EventDispatcher.js";
 
-export class VolumeTool extends EventDispatcher{
-	constructor (viewer) {
+export class VolumeTool extends EventDispatcher {
+	constructor(viewer) {
 		super();
 
 		this.viewer = viewer;
@@ -30,8 +30,8 @@ export class VolumeTool extends EventDispatcher{
 			this.scene.add(e.volume);
 		};
 
-		for(let volume of viewer.scene.volumes){
-			this.onAdd({volume: volume});
+		for (let volume of viewer.scene.volumes) {
+			this.onAdd({ volume: volume });
 		}
 
 		this.viewer.inputHandler.addEventListener('delete', e => {
@@ -47,8 +47,8 @@ export class VolumeTool extends EventDispatcher{
 		viewer.scene.addEventListener('volume_removed', this.onRemove);
 	}
 
-	onSceneChange(e){
-		if(e.oldScene){
+	onSceneChange(e) {
+		if (e.oldScene) {
 			e.oldScene.removeEventListeners('volume_added', this.onAdd);
 			e.oldScene.removeEventListeners('volume_removed', this.onRemove);
 		}
@@ -57,14 +57,14 @@ export class VolumeTool extends EventDispatcher{
 		e.scene.addEventListener('volume_removed', this.onRemove);
 	}
 
-	startInsertion (args = {}) {
+	startInsertion(args = {}) {
 		let volume;
-		if(args.type){
+		if (args.type) {
 			volume = new args.type();
-		}else{
+		} else {
 			volume = new BoxVolume();
 		}
-		
+
 		volume.clip = args.clip || false;
 		volume.name = args.name || 'Volume';
 
@@ -82,13 +82,13 @@ export class VolumeTool extends EventDispatcher{
 
 		let drag = e => {
 			let camera = this.viewer.scene.getActiveCamera();
-			
+
 			let I = Utils.getMousePointCloudIntersection(
-				e.drag.end, 
-				this.viewer.scene.getActiveCamera(), 
-				this.viewer, 
-				this.viewer.scene.pointclouds, 
-				{pickClipped: false});
+				e.drag.end,
+				this.viewer.scene.getActiveCamera(),
+				this.viewer,
+				this.viewer.scene.pointclouds,
+				{ pickClipped: false });
 
 			if (I) {
 				volume.position.copy(I.location);
@@ -122,11 +122,11 @@ export class VolumeTool extends EventDispatcher{
 		return volume;
 	}
 
-	update(){
+	update() {
 		if (!this.viewer.scene) {
 			return;
 		}
-		
+
 		let camera = this.viewer.scene.getActiveCamera();
 		let renderAreaSize = this.viewer.renderer.getSize(new THREE.Vector2());
 		let clientWidth = renderAreaSize.width;
@@ -135,7 +135,7 @@ export class VolumeTool extends EventDispatcher{
 		let volumes = this.viewer.scene.volumes;
 		for (let volume of volumes) {
 			let label = volume.label;
-			
+
 			{
 
 				let distance = label.position.distanceTo(camera.position);
@@ -152,12 +152,12 @@ export class VolumeTool extends EventDispatcher{
 		}
 	}
 
-	render(params){
+	render(params) {
 		const renderer = this.viewer.renderer;
 
 		const oldTarget = renderer.getRenderTarget();
-		
-		if(params.renderTarget){
+
+		if (params.renderTarget) {
 			renderer.setRenderTarget(params.renderTarget);
 		}
 		renderer.render(this.scene, this.viewer.scene.getActiveCamera());

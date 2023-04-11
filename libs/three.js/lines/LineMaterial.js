@@ -4,7 +4,7 @@ import {
 	UniformsLib,
 	UniformsUtils,
 	Vector2
-} from '../build/three.module.js';
+} from 'three/src/Three';
 
 /**
  * parameters = {
@@ -22,7 +22,7 @@ import {
 UniformsLib.line = {
 
 	linewidth: { value: 1 },
-	resolution: { value: new Vector2( 1, 1 ) },
+	resolution: { value: new Vector2(1, 1) },
 	dashScale: { value: 1 },
 	dashSize: { value: 1 },
 	dashOffset: { value: 0 },
@@ -31,13 +31,13 @@ UniformsLib.line = {
 
 };
 
-ShaderLib[ 'line' ] = {
+ShaderLib['line'] = {
 
-	uniforms: UniformsUtils.merge( [
+	uniforms: UniformsUtils.merge([
 		UniformsLib.common,
 		UniformsLib.fog,
 		UniformsLib.line
-	] ),
+	]),
 
 	vertexShader:
 		`
@@ -247,24 +247,24 @@ ShaderLib[ 'line' ] = {
 		`
 };
 
-var LineMaterial = function ( parameters ) {
+var LineMaterial = function (parameters) {
 
-	ShaderMaterial.call( this, {
+	ShaderMaterial.call(this, {
 
 		type: 'LineMaterial',
 
-		uniforms: UniformsUtils.clone( ShaderLib[ 'line' ].uniforms ),
+		uniforms: UniformsUtils.clone(ShaderLib['line'].uniforms),
 
-		vertexShader: ShaderLib[ 'line' ].vertexShader,
-		fragmentShader: ShaderLib[ 'line' ].fragmentShader,
+		vertexShader: ShaderLib['line'].vertexShader,
+		fragmentShader: ShaderLib['line'].fragmentShader,
 
 		clipping: true // required for clipping support
 
-	} );
+	});
 
 	this.dashed = false;
 
-	Object.defineProperties( this, {
+	Object.defineProperties(this, {
 
 		color: {
 
@@ -276,7 +276,7 @@ var LineMaterial = function ( parameters ) {
 
 			},
 
-			set: function ( value ) {
+			set: function (value) {
 
 				this.uniforms.diffuse.value = value;
 
@@ -294,7 +294,7 @@ var LineMaterial = function ( parameters ) {
 
 			},
 
-			set: function ( value ) {
+			set: function (value) {
 
 				this.uniforms.linewidth.value = value;
 
@@ -312,7 +312,7 @@ var LineMaterial = function ( parameters ) {
 
 			},
 
-			set: function ( value ) {
+			set: function (value) {
 
 				this.uniforms.dashScale.value = value;
 
@@ -330,7 +330,7 @@ var LineMaterial = function ( parameters ) {
 
 			},
 
-			set: function ( value ) {
+			set: function (value) {
 
 				this.uniforms.dashSize.value = value;
 
@@ -348,7 +348,7 @@ var LineMaterial = function ( parameters ) {
 
 			},
 
-			set: function ( value ) {
+			set: function (value) {
 
 				this.uniforms.dashOffset.value = value;
 
@@ -366,7 +366,7 @@ var LineMaterial = function ( parameters ) {
 
 			},
 
-			set: function ( value ) {
+			set: function (value) {
 
 				this.uniforms.gapSize.value = value;
 
@@ -384,7 +384,7 @@ var LineMaterial = function ( parameters ) {
 
 			},
 
-			set: function ( value ) {
+			set: function (value) {
 
 				this.uniforms.opacity.value = value;
 
@@ -402,21 +402,21 @@ var LineMaterial = function ( parameters ) {
 
 			},
 
-			set: function ( value ) {
+			set: function (value) {
 
-				this.uniforms.resolution.value.copy( value );
+				this.uniforms.resolution.value.copy(value);
 
 			}
 
 		}
 
-	} );
+	});
 
-	this.setValues( parameters );
+	this.setValues(parameters);
 
 };
 
-LineMaterial.prototype = Object.create( ShaderMaterial.prototype );
+LineMaterial.prototype = Object.create(ShaderMaterial.prototype);
 LineMaterial.prototype.constructor = LineMaterial;
 
 LineMaterial.prototype.isLineMaterial = true;

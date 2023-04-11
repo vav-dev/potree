@@ -1,4 +1,4 @@
-import * as THREE from "../../libs/three.js/build/three.module.js";
+import * as THREE from "three/src/Three";
 
 // -------------------------------------------
 // to get a ready to use gradient array from a chroma.js gradient:
@@ -146,4 +146,4 @@ let Gradients = {
 };
 
 
-export {Gradients};
+export { Gradients };

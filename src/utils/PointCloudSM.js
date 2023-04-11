@@ -1,9 +1,9 @@
 
-import * as THREE from "../../libs/three.js/build/three.module.js";
+import * as THREE from "three/src/Three";
 
-export class PointCloudSM{
+export class PointCloudSM {
 
-	constructor(potreeRenderer){
+	constructor(potreeRenderer) {
 
 		this.potreeRenderer = potreeRenderer;
 		this.threeRenderer = this.potreeRenderer.threeRenderer;
@@ -32,7 +32,7 @@ export class PointCloudSM{
 		}
 	}
 
-	setLight(light){
+	setLight(light) {
 		this.light = light;
 
 		let fov = (180 * light.angle) / Math.PI;
@@ -52,17 +52,17 @@ export class PointCloudSM{
 		this.camera.matrixWorldInverse.copy(this.camera.matrixWorld).invert();
 	}
 
-	setSize(width, height){
-		if(this.target.width !== width || this.target.height !== height){
+	setSize(width, height) {
+		if (this.target.width !== width || this.target.height !== height) {
 			this.target.dispose();
 		}
 		this.target.setSize(width, height);
 	}
 
-	render(scene, camera){
+	render(scene, camera) {
 
 		this.threeRenderer.setClearColor(0x000000, 1);
-		
+
 		const oldTarget = this.threeRenderer.getRenderTarget();
 
 		this.threeRenderer.setRenderTarget(this.target);

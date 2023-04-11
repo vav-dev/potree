@@ -1,9 +1,9 @@
 
-import * as THREE from "../../../libs/three.js/build/three.module.js";
-import {MeasurePanel} from "./MeasurePanel.js";
+import * as THREE from "three/src/Three";
+import { MeasurePanel } from "./MeasurePanel.js";
 
-export class ProfilePanel extends MeasurePanel{
-	constructor(viewer, measurement, propertiesPanel){
+export class ProfilePanel extends MeasurePanel {
+	constructor(viewer, measurement, propertiesPanel) {
 		super(viewer, measurement, propertiesPanel);
 
 		let removeIconPath = Potree.resourcePath + '/icons/remove.svg';
@@ -36,14 +36,14 @@ export class ProfilePanel extends MeasurePanel{
 		`);
 
 		this.elRemove = this.elContent.find("img[name=remove]");
-		this.elRemove.click( () => {
+		this.elRemove.click(() => {
 			this.viewer.scene.removeProfile(measurement);
 		});
 
 		{ // download
 			this.elDownloadButton = this.elContent.find(`input[name=download_profile]`);
 
-			if(this.propertiesPanel.viewer.server){
+			if (this.propertiesPanel.viewer.server) {
 				this.elDownloadButton.click(() => this.download());
 			} else {
 				this.elDownloadButton.hide();
@@ -56,7 +56,7 @@ export class ProfilePanel extends MeasurePanel{
 			elWidthSlider.spinner({
 				min: 0, max: 10 * 1000 * 1000, step: 0.01,
 				numberFormat: 'n',
-				start: () => {},
+				start: () => { },
 				spin: (event, ui) => {
 					let value = elWidthSlider.spinner('value');
 					measurement.setWidth(value);
@@ -104,13 +104,13 @@ export class ProfilePanel extends MeasurePanel{
 		this.update();
 	}
 
-	update(){
+	update() {
 		let elCoordiantesContainer = this.elContent.find('.coordinates_table_container');
 		elCoordiantesContainer.empty();
 		elCoordiantesContainer.append(this.createCoordinatesTable(this.measurement.points));
 	}
 
-	async download(){
+	async download() {
 
 		let profile = this.measurement;
 
@@ -118,32 +118,32 @@ export class ProfilePanel extends MeasurePanel{
 		{
 			let segments = profile.getSegments();
 			let width = profile.width;
-			
-			for(let segment of segments){
+
+			for (let segment of segments) {
 				let start = segment.start.clone().multiply(new THREE.Vector3(1, 1, 0));
 				let end = segment.end.clone().multiply(new THREE.Vector3(1, 1, 0));
 				let center = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
-				
+
 				let startEndDir = new THREE.Vector3().subVectors(end, start).normalize();
 				let endStartDir = new THREE.Vector3().subVectors(start, end).normalize();
 				let upDir = new THREE.Vector3(0, 0, 1);
 				let rightDir = new THREE.Vector3().crossVectors(startEndDir, upDir);
 				let leftDir = new THREE.Vector3().crossVectors(endStartDir, upDir);
-				
+
 				console.log(leftDir);
-				
+
 				let right = rightDir.clone().multiplyScalar(width * 0.5).add(center);
 				let left = leftDir.clone().multiplyScalar(width * 0.5).add(center);
-				
+
 				let planes = [
 					new THREE.Plane().setFromNormalAndCoplanarPoint(startEndDir, start),
 					new THREE.Plane().setFromNormalAndCoplanarPoint(endStartDir, end),
 					new THREE.Plane().setFromNormalAndCoplanarPoint(leftDir, right),
 					new THREE.Plane().setFromNormalAndCoplanarPoint(rightDir, left),
 				];
-				
+
 				let planeQueryParts = [];
-				for(let plane of planes){
+				for (let plane of planes) {
 					let part = [plane.normal.toArray(), plane.constant].join(",");
 					part = `[${part}]`;
 					planeQueryParts.push(part);
@@ -156,8 +156,8 @@ export class ProfilePanel extends MeasurePanel{
 		let regionsArg = regions.join(",");
 
 		let pointcloudArgs = [];
-		for(let pointcloud of this.viewer.scene.pointclouds){
-			if(!pointcloud.visible){
+		for (let pointcloud of this.viewer.scene.pointclouds) {
+			if (!pointcloud.visible) {
 				continue;
 			}
 
@@ -192,7 +192,7 @@ export class ProfilePanel extends MeasurePanel{
 		let handle = null;
 		{ // START FILTER
 			let url = `${viewer.server}/create_regions_filter?pointclouds=[${pointcloudsArg}]&regions=[${regionsArg}]`;
-			
+
 			//console.log(url);
 
 			info("estimating results ...");
@@ -201,10 +201,10 @@ export class ProfilePanel extends MeasurePanel{
 			let jsResponse = await response.json();
 			//console.log(jsResponse);
 
-			if(!jsResponse.handle){
+			if (!jsResponse.handle) {
 				error(jsResponse.message);
 				return;
-			}else{
+			} else {
 				handle = jsResponse.handle;
 			}
 		}
@@ -212,8 +212,8 @@ export class ProfilePanel extends MeasurePanel{
 		{ // WAIT, CHECK PROGRESS, HANDLE FINISH
 			let url = `${viewer.server}/check_regions_filter?handle=${handle}`;
 
-			let sleep = (function(duration){
-				return new Promise( (res, rej) => {
+			let sleep = (function (duration) {
+				return new Promise((res, rej) => {
 					setTimeout(() => {
 						res();
 					}, duration);
@@ -221,7 +221,7 @@ export class ProfilePanel extends MeasurePanel{
 			});
 
 			let handleFiltering = (jsResponse) => {
-				let {progress, estimate} = jsResponse;
+				let { progress, estimate } = jsResponse;
 
 				let progressFract = progress["processed points"] / estimate.points;
 				let progressPercents = parseInt(progressFract * 100);
@@ -233,7 +233,7 @@ export class ProfilePanel extends MeasurePanel{
 				let message = "downloads ready: <br>";
 				message += "<ul>";
 
-				for(let i = 0; i < jsResponse.pointclouds.length; i++){
+				for (let i = 0; i < jsResponse.pointclouds.length; i++) {
 					let url = `${viewer.server}/download_regions_filter_result?handle=${handle}&index=${i}`;
 
 					message += `<li><a href="${url}">result_${i}.las</a> </li>\n`;
@@ -260,19 +260,19 @@ export class ProfilePanel extends MeasurePanel{
 
 			let start = Date.now();
 
-			while(true){
+			while (true) {
 				let response = await fetch(url);
 				let jsResponse = await response.json();
 
-				if(jsResponse.status === "ERROR"){
+				if (jsResponse.status === "ERROR") {
 					handleError(jsResponse);
-				}else if(jsResponse.status === "FILTERING"){
+				} else if (jsResponse.status === "FILTERING") {
 					handleFiltering(jsResponse);
-				}else if(jsResponse.status === "FINISHED"){
+				} else if (jsResponse.status === "FINISHED") {
 					handleFinish(jsResponse);
 
 					break;
-				}else{
+				} else {
 					handleUnexpected(jsResponse);
 				}
 

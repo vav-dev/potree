@@ -1,9 +1,9 @@
 
-import * as THREE from "../../../../libs/three.js/build/three.module.js";
+import * as THREE from "three/src/Three";
 
-export class OctreeGeometry{
+export class OctreeGeometry {
 
-	constructor(){
+	constructor() {
 		this.url = null;
 		this.spacing = 0;
 		this.boundingBox = null;
@@ -14,9 +14,9 @@ export class OctreeGeometry{
 
 };
 
-export class OctreeGeometryNode{
+export class OctreeGeometryNode {
 
-	constructor(name, octreeGeometry, boundingBox){
+	constructor(name, octreeGeometry, boundingBox) {
 		this.id = OctreeGeometryNode.IDCount++;
 		this.name = name;
 		this.index = parseInt(name.charAt(name.length - 1));
@@ -29,31 +29,31 @@ export class OctreeGeometryNode{
 		this.oneTimeDisposeHandlers = [];
 	}
 
-	isGeometryNode(){
+	isGeometryNode() {
 		return true;
 	}
 
-	getLevel(){
+	getLevel() {
 		return this.level;
 	}
 
-	isTreeNode(){
+	isTreeNode() {
 		return false;
 	}
 
-	isLoaded(){
+	isLoaded() {
 		return this.loaded;
 	}
 
-	getBoundingSphere(){
+	getBoundingSphere() {
 		return this.boundingSphere;
 	}
 
-	getBoundingBox(){
+	getBoundingBox() {
 		return this.boundingBox;
 	}
 
-	getChildren(){
+	getChildren() {
 		let children = [];
 
 		for (let i = 0; i < 8; i++) {
@@ -65,11 +65,11 @@ export class OctreeGeometryNode{
 		return children;
 	}
 
-	getBoundingBox(){
+	getBoundingBox() {
 		return this.boundingBox;
 	}
 
-	load(){
+	load() {
 
 		if (Potree.numNodesLoading >= Potree.maxNodesLoading) {
 			return;
@@ -78,11 +78,11 @@ export class OctreeGeometryNode{
 		this.octreeGeometry.loader.load(this);
 	}
 
-	getNumPoints(){
+	getNumPoints() {
 		return this.numPoints;
 	}
 
-	dispose(){
+	dispose() {
 		if (this.geometry && this.parent != null) {
 			this.geometry.dispose();
 			this.geometry = null;

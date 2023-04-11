@@ -1,8 +1,8 @@
 
 
-import * as THREE from "../../libs/three.js/build/three.module.js";
-import {Version} from "../Version.js";
-import {XHRFactory} from "../XHRFactory.js";
+import * as THREE from "three/src/Three";
+import { Version } from "../Version.js";
+import { XHRFactory } from "../XHRFactory.js";
 
 /**
  * laslaz code taken and adapted from plas.io js-laslaz
@@ -15,7 +15,7 @@ import {XHRFactory} from "../XHRFactory.js";
 
 export class LasLazLoader {
 
-	constructor (version, extension) {
+	constructor(version, extension) {
 		if (typeof (version) === 'string') {
 			this.version = new Version(version);
 		} else {
@@ -25,11 +25,11 @@ export class LasLazLoader {
 		this.extension = extension;
 	}
 
-	static progressCB () {
+	static progressCB() {
 
 	}
 
-	load (node) {
+	load(node) {
 		if (node.loaded) {
 			return;
 		}
@@ -58,14 +58,14 @@ export class LasLazLoader {
 		xhr.send(null);
 	}
 
-	async parse(node, buffer){
+	async parse(node, buffer) {
 		let lf = new LASFile(buffer);
 		let handler = new LasLazBatcher(node);
 
-		try{
-			 await lf.open();
-			 lf.isOpen = true;
-		}catch(e){
+		try {
+			await lf.open();
+			lf.isOpen = true;
+		} catch (e) {
 			console.log("failed to open file. :(");
 
 			return;
@@ -79,7 +79,7 @@ export class LasLazLoader {
 
 		let hasMoreData = true;
 
-		while(hasMoreData){
+		while (hasMoreData) {
 			let data = await lf.readData(1000 * 1000, 0, skip);
 
 			handler.push(new LASDecoder(data.buffer,
@@ -102,29 +102,29 @@ export class LasLazLoader {
 
 		LasLazLoader.progressCB(1);
 
-		try{
+		try {
 			await lf.close();
 
 			lf.isOpen = false;
-		}catch(e){
+		} catch (e) {
 			console.error("failed to close las/laz file!!!");
-			
+
 			throw e;
 		}
 	}
 
-	handle (node, url) {
+	handle(node, url) {
 
 	}
 };
 
-export class LasLazBatcher{
+export class LasLazBatcher {
 
-	constructor (node) {
+	constructor(node) {
 		this.node = node;
 	}
 
-	push (lasBuffer) {
+	push(lasBuffer) {
 		const workerPath = Potree.scriptPath + '/workers/LASDecoderWorker.js';
 		const worker = Potree.workerPool.getWorker(workerPath);
 		const node = this.node;
@@ -153,7 +153,7 @@ export class LasLazBatcher{
 			geometry.setAttribute('indices', new THREE.BufferAttribute(indices, 4));
 			geometry.attributes.indices.normalized = true;
 
-			for(const key in e.data.ranges){
+			for (const key in e.data.ranges) {
 				const range = e.data.ranges[key];
 
 				const attribute = pointAttributes.attributes.find(a => a.name === key);
@@ -177,6 +177,8 @@ export class LasLazBatcher{
 			this.node.mean = new THREE.Vector3(...e.data.mean);
 
 			Potree.workerPool.returnWorker(workerPath, worker);
+
+			Potree.needRender();
 		};
 
 		let message = {

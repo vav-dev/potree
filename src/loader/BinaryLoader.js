@@ -1,13 +1,13 @@
 
 
-import * as THREE from "../../libs/three.js/build/three.module.js";
-import {Version} from "../Version.js";
-import {XHRFactory} from "../XHRFactory.js";
+import * as THREE from "three/src/Three";
+import { Version } from "../Version.js";
+import { XHRFactory } from "../XHRFactory.js";
 
 
-export class BinaryLoader{
+export class BinaryLoader {
 
-	constructor(version, boundingBox, scale){
+	constructor(version, boundingBox, scale) {
 		if (typeof (version) === 'string') {
 			this.version = new Version(version);
 		} else {
@@ -18,7 +18,7 @@ export class BinaryLoader{
 		this.scale = scale;
 	}
 
-	load(node){
+	load(node) {
 		if (node.loaded) {
 			return;
 		}
@@ -35,7 +35,7 @@ export class BinaryLoader{
 		xhr.overrideMimeType('text/plain; charset=x-user-defined');
 		xhr.onreadystatechange = () => {
 			if (xhr.readyState === 4) {
-				if((xhr.status === 200 || xhr.status === 0) &&  xhr.response !== null){
+				if ((xhr.status === 200 || xhr.status === 0) && xhr.response !== null) {
 					let buffer = xhr.response;
 					this.parse(node, buffer);
 				} else {
@@ -44,7 +44,7 @@ export class BinaryLoader{
 				}
 			}
 		};
-		
+
 		try {
 			xhr.send(null);
 		} catch (e) {
@@ -52,7 +52,7 @@ export class BinaryLoader{
 		}
 	};
 
-	parse(node, buffer){
+	parse(node, buffer) {
 		let pointAttributes = node.pcoGeometry.pointAttributes;
 		let numPoints = buffer.byteLength / node.pcoGeometry.pointAttributes.byteSize;
 
@@ -76,7 +76,7 @@ export class BinaryLoader{
 
 			let geometry = new THREE.BufferGeometry();
 
-			for(let property in buffers){
+			for (let property in buffers) {
 				let buffer = buffers[property].buffer;
 				let batchAttribute = buffers[property].attribute;
 
@@ -113,7 +113,7 @@ export class BinaryLoader{
 					attribute.range[0] = Math.min(attribute.range[0], batchAttribute.range[0]);
 					attribute.range[1] = Math.max(attribute.range[1], batchAttribute.range[1]);
 
-					if(node.getLevel() === 0){
+					if (node.getLevel() === 0) {
 						attribute.initialRange = batchAttribute.range;
 					}
 
@@ -124,7 +124,7 @@ export class BinaryLoader{
 			tightBoundingBox.min.set(0, 0, 0);
 
 			let numPoints = e.data.buffer.byteLength / pointAttributes.byteSize;
-			
+
 			node.numPoints = numPoints;
 			node.geometry = geometry;
 			node.mean = new THREE.Vector3(...data.mean);
@@ -133,13 +133,15 @@ export class BinaryLoader{
 			node.loading = false;
 			node.estimatedSpacing = data.estimatedSpacing;
 			Potree.numNodesLoading--;
+
+			Potree.needRender();
 		};
 
 		let message = {
 			buffer: buffer,
 			pointAttributes: pointAttributes,
 			version: this.version.version,
-			min: [ node.boundingBox.min.x, node.boundingBox.min.y, node.boundingBox.min.z ],
+			min: [node.boundingBox.min.x, node.boundingBox.min.y, node.boundingBox.min.z],
 			offset: [node.pcoGeometry.offset.x, node.pcoGeometry.offset.y, node.pcoGeometry.offset.z],
 			scale: this.scale,
 			spacing: node.spacing,
@@ -149,6 +151,6 @@ export class BinaryLoader{
 		worker.postMessage(message, [message.buffer]);
 	};
 
-	
+
 }
 

@@ -13,14 +13,14 @@
  *
  */
 
-import * as THREE from "../../libs/three.js/build/three.module.js";
-import {MOUSE} from "../defines.js";
-import {Utils} from "../utils.js";
-import {EventDispatcher} from "../EventDispatcher.js";
+import * as THREE from "three/src/Three";
+import { MOUSE } from "../defines.js";
+import { Utils } from "../utils.js";
+import { EventDispatcher } from "../EventDispatcher.js";
 
 
 export class FirstPersonControls extends EventDispatcher {
-	constructor (viewer) {
+	constructor(viewer) {
 		super();
 
 		this.viewer = viewer;
@@ -58,7 +58,7 @@ export class FirstPersonControls extends EventDispatcher {
 			if (e.drag.startHandled === undefined) {
 				e.drag.startHandled = true;
 
-				this.dispatchEvent({type: 'start'});
+				this.dispatchEvent({ type: 'start' });
 			}
 
 			let moveSpeed = this.viewer.getMoveSpeed();
@@ -78,7 +78,7 @@ export class FirstPersonControls extends EventDispatcher {
 		};
 
 		let drop = e => {
-			this.dispatchEvent({type: 'end'});
+			this.dispatchEvent({ type: 'end' });
 		};
 
 		let scroll = (e) => {
@@ -105,19 +105,19 @@ export class FirstPersonControls extends EventDispatcher {
 		this.addEventListener('dblclick', dblclick);
 	}
 
-	setScene (scene) {
+	setScene(scene) {
 		this.scene = scene;
 	}
 
-	stop(){
+	stop() {
 		this.yawDelta = 0;
 		this.pitchDelta = 0;
 		this.translationDelta.set(0, 0, 0);
 	}
-	
-	zoomToLocation(mouse){
+
+	zoomToLocation(mouse) {
 		let camera = this.scene.getActiveCamera();
-		
+
 		let I = Utils.getMousePointCloudIntersection(
 			mouse,
 			camera,
@@ -150,8 +150,8 @@ export class FirstPersonControls extends EventDispatcher {
 		let easing = TWEEN.Easing.Quartic.Out;
 
 		{ // animate
-			let value = {x: 0};
-			let tween = new TWEEN.Tween(value).to({x: 1}, animationDuration);
+			let value = { x: 0 };
+			let tween = new TWEEN.Tween(value).to({ x: 1 }, animationDuration);
 			tween.easing(easing);
 			this.tweens.push(tween);
 
@@ -178,14 +178,14 @@ export class FirstPersonControls extends EventDispatcher {
 		}
 	}
 
-	update (delta) {
+	update(delta) {
 		let view = this.scene.view;
 
 		{ // cancel move animations on user input
-			let changes = [ this.yawDelta,
-				this.pitchDelta,
-				this.translationDelta.length(),
-				this.translationWorldDelta.length() ];
+			let changes = [this.yawDelta,
+			this.pitchDelta,
+			this.translationDelta.length(),
+			this.translationWorldDelta.length()];
 			let changeHappens = changes.some(e => Math.abs(e) > 0.001);
 			if (changeHappens && this.tweens.length > 0) {
 				this.tweens.forEach(e => e.stop());
@@ -203,7 +203,7 @@ export class FirstPersonControls extends EventDispatcher {
 			let moveUp = this.keys.UP.some(e => ih.pressedKeys[e]);
 			let moveDown = this.keys.DOWN.some(e => ih.pressedKeys[e]);
 
-			if(this.lockElevation){
+			if (this.lockElevation) {
 				let dir = view.direction;
 				dir.z = 0;
 				dir.normalize();
@@ -215,7 +215,7 @@ export class FirstPersonControls extends EventDispatcher {
 				} else if (moveBackward) {
 					this.translationWorldDelta.copy(dir.multiplyScalar(-this.viewer.getMoveSpeed()));
 				}
-			}else{
+			} else {
 				if (moveForward && moveBackward) {
 					this.translationDelta.y = 0;
 				} else if (moveForward) {

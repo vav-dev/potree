@@ -1,9 +1,10 @@
 
-import * as THREE from "../libs/three.js/build/three.module.js";
-import {Points} from "./Points.js";
+import * as THREE from "three/src/Three";
+import { Points } from "./Points.js";
+import { BinaryHeap } from "../libs/other/BinaryHeap.js";
 
 export class ProfileData {
-	constructor (profile) {
+	constructor(profile) {
 		this.profile = profile;
 
 		this.segments = [];
@@ -38,7 +39,7 @@ export class ProfileData {
 		}
 	}
 
-	size () {
+	size() {
 		let size = 0;
 		for (let segment of this.segments) {
 			size += segment.points.numPoints;
@@ -49,7 +50,7 @@ export class ProfileData {
 };
 
 export class ProfileRequest {
-	constructor (pointcloud, profile, maxDepth, callback) {
+	constructor(pointcloud, profile, maxDepth, callback) {
 		this.pointcloud = pointcloud;
 		this.profile = profile;
 		this.maxDepth = maxDepth || Number.MAX_VALUE;
@@ -63,12 +64,12 @@ export class ProfileRequest {
 		this.initialize();
 	}
 
-	initialize () {
-		this.priorityQueue.push({node: this.pointcloud.pcoGeometry.root, weight: Infinity});
+	initialize() {
+		this.priorityQueue.push({ node: this.pointcloud.pcoGeometry.root, weight: Infinity });
 	};
 
 	// traverse the node and add intersecting descendants to queue
-	traverse (node) {
+	traverse(node) {
 		let stack = [];
 		for (let i = 0; i < 8; i++) {
 			let child = node.children[i];
@@ -81,7 +82,7 @@ export class ProfileRequest {
 			let node = stack.pop();
 			let weight = node.boundingSphere.radius;
 
-			this.priorityQueue.push({node: node, weight: weight});
+			this.priorityQueue.push({ node: node, weight: weight });
 
 			// add children that intersect the cutting plane
 			if (node.level < this.maxDepth) {
@@ -95,18 +96,18 @@ export class ProfileRequest {
 		}
 	}
 
-	update(){
-		if(!this.updateGeneratorInstance){
+	update() {
+		if (!this.updateGeneratorInstance) {
 			this.updateGeneratorInstance = this.updateGenerator();
 		}
 
 		let result = this.updateGeneratorInstance.next();
-		if(result.done){
+		if (result.done) {
 			this.updateGeneratorInstance = null;
 		}
 	}
 
-	* updateGenerator(){
+	* updateGenerator() {
 		// load nodes in queue
 		// if hierarchy expands, also load nodes from expanded hierarchy
 		// once loaded, add data to this.points and remove node from queue
@@ -121,14 +122,14 @@ export class ProfileRequest {
 			let element = this.priorityQueue.pop();
 			let node = element.node;
 
-			if(node.level > this.maxDepth){
+			if (node.level > this.maxDepth) {
 				continue;
 			}
 
 			if (node.loaded) {
 				// add points to result
 				intersectedNodes.push(node);
-				exports.lru.touch(node);
+				Potree.lru.touch(node);
 				this.highestLevelServed = Math.max(node.getLevel(), this.highestLevelServed);
 
 				var geom = node.pcoGeometry;
@@ -148,15 +149,15 @@ export class ProfileRequest {
 
 		if (intersectedNodes.length > 0) {
 
-			for(let done of this.getPointsInsideProfile(intersectedNodes, this.temporaryResult)){
-				if(!done){
+			for (let done of this.getPointsInsideProfile(intersectedNodes, this.temporaryResult)) {
+				if (!done) {
 					//console.log("updateGenerator yields");
 					yield false;
 				}
 			}
 			if (this.temporaryResult.size() > 100) {
 				this.pointsServed += this.temporaryResult.size();
-				this.callback.onProgress({request: this, points: this.temporaryResult});
+				this.callback.onProgress({ request: this, points: this.temporaryResult });
 				this.temporaryResult = new ProfileData(this.profile);
 			}
 		}
@@ -166,11 +167,11 @@ export class ProfileRequest {
 
 			if (this.temporaryResult.size() > 0) {
 				this.pointsServed += this.temporaryResult.size();
-				this.callback.onProgress({request: this, points: this.temporaryResult});
+				this.callback.onProgress({ request: this, points: this.temporaryResult });
 				this.temporaryResult = new ProfileData(this.profile);
 			}
 
-			this.callback.onFinish({request: this});
+			this.callback.onFinish({ request: this });
 
 			let index = this.pointcloud.profileRequests.indexOf(this);
 			if (index >= 0) {
@@ -181,7 +182,7 @@ export class ProfileRequest {
 		yield true;
 	};
 
-	* getAccepted(numPoints, node, matrix, segment, segmentDir, points, totalMileage){
+	* getAccepted(numPoints, node, matrix, segment, segmentDir, points, totalMileage) {
 		let checkpoint = performance.now();
 
 		let accepted = new Uint32Array(numPoints);
@@ -222,9 +223,9 @@ export class ProfileRequest {
 				numAccepted++;
 			}
 
-			if((i % 1000) === 0){
+			if ((i % 1000) === 0) {
 				let duration = performance.now() - checkpoint;
-				if(duration > 4){
+				if (duration > 4) {
 					//console.log(`getAccepted yield after ${duration}ms`);
 					yield false;
 					checkpoint = performance.now();
@@ -245,7 +246,7 @@ export class ProfileRequest {
 		yield [accepted, mileage, acceptedPositions];
 	}
 
-	* getPointsInsideProfile(nodes, target){
+	* getPointsInsideProfile(nodes, target) {
 		let checkpoint = performance.now();
 		let totalMileage = 0;
 
@@ -256,7 +257,7 @@ export class ProfileRequest {
 				let numPoints = node.numPoints;
 				let geometry = node.geometry;
 
-				if(!numPoints){
+				if (!numPoints) {
 					continue;
 				}
 
@@ -272,7 +273,7 @@ export class ProfileRequest {
 
 					let intersects = (distance < (bsWorld.radius + target.profile.width));
 
-					if(!intersects){
+					if (!intersects) {
 						continue;
 					}
 				}
@@ -300,19 +301,19 @@ export class ProfileRequest {
 				let accepted = null;
 				let mileage = null;
 				let acceptedPositions = null;
-				for(let result of this.getAccepted(numPoints, node, matrix, segment, segmentDir, points,totalMileage)){
-					if(!result){
+				for (let result of this.getAccepted(numPoints, node, matrix, segment, segmentDir, points, totalMileage)) {
+					if (!result) {
 						let duration = performance.now() - checkpoint;
 						//console.log(`getPointsInsideProfile yield after ${duration}ms`);
 						yield false;
 						checkpoint = performance.now();
-					}else{
+					} else {
 						[accepted, mileage, acceptedPositions] = result;
 					}
 				}
 
 				let duration = performance.now() - checkpoint;
-				if(duration > 4){
+				if (duration > 4) {
 					//console.log(`getPointsInsideProfile yield after ${duration}ms`);
 					yield false;
 					checkpoint = performance.now();
@@ -321,12 +322,12 @@ export class ProfileRequest {
 				points.data.position = acceptedPositions;
 
 				let relevantAttributes = Object.keys(geometry.attributes).filter(a => !["position", "indices"].includes(a));
-				for(let attributeName of relevantAttributes){
+				for (let attributeName of relevantAttributes) {
 
 					let attribute = geometry.attributes[attributeName];
 					let numElements = attribute.array.length / numPoints;
 
-					if(numElements !== parseInt(numElements)){
+					if (numElements !== parseInt(numElements)) {
 						debugger;
 					}
 
@@ -337,7 +338,7 @@ export class ProfileRequest {
 					let source = attribute.array;
 					let target = filteredBuffer;
 
-					for(let i = 0; i < accepted.length; i++){
+					for (let i = 0; i < accepted.length; i++) {
 
 						let index = accepted[i];
 
@@ -368,7 +369,7 @@ export class ProfileRequest {
 		yield true;
 	};
 
-	finishLevelThenCancel () {
+	finishLevelThenCancel() {
 		if (this.cancelRequested) {
 			return;
 		}
@@ -379,7 +380,7 @@ export class ProfileRequest {
 		//console.log(`maxDepth: ${this.maxDepth}`);
 	};
 
-	cancel () {
+	cancel() {
 		this.callback.onCancel();
 
 		this.priorityQueue = new BinaryHeap(function (x) { return 1 / x.weight; });

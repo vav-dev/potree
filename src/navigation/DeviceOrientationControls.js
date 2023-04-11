@@ -14,11 +14,11 @@
  *
  */
 
-import * as THREE from "../../libs/three.js/build/three.module.js";
-import {EventDispatcher} from "../EventDispatcher.js";
+import * as THREE from "three/src/Three";
+import { EventDispatcher } from "../EventDispatcher.js";
 
-export class DeviceOrientationControls extends EventDispatcher{
-	constructor(viewer){
+export class DeviceOrientationControls extends EventDispatcher {
+	constructor(viewer) {
 		super();
 
 		this.viewer = viewer;
@@ -48,11 +48,11 @@ export class DeviceOrientationControls extends EventDispatcher{
 		window.addEventListener('orientationchange', screenOrientationChange);
 	}
 
-	setScene (scene) {
+	setScene(scene) {
 		this.scene = scene;
 	}
 
-	update (delta) {
+	update(delta) {
 		let computeQuaternion = function (alpha, beta, gamma, orient) {
 			let quaternion = new THREE.Quaternion();
 

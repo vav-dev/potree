@@ -1,22 +1,22 @@
 
-import * as THREE from "../../libs/three.js/build/three.module.js";
-import {Shaders} from "../../build/shaders/shaders.js";
+import * as THREE from "three/src/Three";
+import { Shaders } from "../../build/shaders/shaders.js";
 
 
-export class NormalizationEDLMaterial extends THREE.RawShaderMaterial{
+export class NormalizationEDLMaterial extends THREE.RawShaderMaterial {
 
-	constructor(parameters = {}){
+	constructor(parameters = {}) {
 		super();
 
 		let uniforms = {
-			screenWidth:    { type: 'f',   value: 0 },
-			screenHeight:   { type: 'f',   value: 0 },
-			edlStrength:    { type: 'f',   value: 1.0 },
-			radius:         { type: 'f',   value: 1.0 },
-			neighbours:     { type: '2fv', value: [] },
-			uEDLMap:        { type: 't',   value: null },
-			uDepthMap:      { type: 't',   value: null },
-			uWeightMap:     { type: 't',   value: null },
+			screenWidth: { type: 'f', value: 0 },
+			screenHeight: { type: 'f', value: 0 },
+			edlStrength: { type: 'f', value: 1.0 },
+			radius: { type: 'f', value: 1.0 },
+			neighbours: { type: '2fv', value: [] },
+			uEDLMap: { type: 't', value: null },
+			uDepthMap: { type: 't', value: null },
+			uWeightMap: { type: 't', value: null },
 		};
 
 		this.setValues({
@@ -51,11 +51,11 @@ export class NormalizationEDLMaterial extends THREE.RawShaderMaterial{
 		this.needsUpdate = true;
 	}
 
-	get neighbourCount(){
+	get neighbourCount() {
 		return this._neighbourCount;
 	}
 
-	set neighbourCount(value){
+	set neighbourCount(value) {
 		if (this._neighbourCount !== value) {
 			this._neighbourCount = value;
 			this.neighbours = new Float32Array(this._neighbourCount * 2);
@@ -67,6 +67,6 @@ export class NormalizationEDLMaterial extends THREE.RawShaderMaterial{
 			this.updateShaderSource();
 		}
 	}
-	
+
 }
 

@@ -1,5 +1,5 @@
 
-import * as THREE from "../../libs/three.js/build/three.module.js";
+import * as THREE from "three/src/Three";
 
 // http://epsg.io/
 proj4.defs([
@@ -26,9 +26,9 @@ proj4.defs([
 	['EPSG:26919', '+proj=utm +zone=19 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs '],
 ]);
 
-export class MapView{
+export class MapView {
 
-	constructor (viewer) {
+	constructor(viewer) {
 		this.viewer = viewer;
 
 		this.webMapService = 'WMTS';
@@ -90,14 +90,14 @@ export class MapView{
 		};
 	}
 
-	showSources (show) {
+	showSources(show) {
 		this.sourcesLayer.setVisible(show);
 		this.sourcesLabelLayer.setVisible(show);
 	}
 
-	init () {
+	init() {
 
-		if(typeof ol === "undefined"){
+		if (typeof ol === "undefined") {
 			return;
 		}
 
@@ -212,7 +212,7 @@ export class MapView{
 				mousePositionControl
 			]),
 			layers: [
-				new ol.layer.Tile({source: new ol.source.OSM()}),
+				new ol.layer.Tile({ source: new ol.source.OSM() }),
 				this.toolLayer,
 				this.annotationsLayer,
 				this.sourcesLayer,
@@ -342,7 +342,7 @@ export class MapView{
 		this.setScene(this.viewer.scene);
 	}
 
-	setScene (scene) {
+	setScene(scene) {
 		if (this.scene === scene) {
 			return;
 		};
@@ -364,15 +364,15 @@ export class MapView{
 		}
 
 		this.viewer.scene.annotations.traverseDescendants(annotation => {
-			this.onAnnotationAdded({annotation: annotation});
+			this.onAnnotationAdded({ annotation: annotation });
 		});
 
-		for(let images of this.viewer.scene.images360){
-			this.on360ImagesAdded({images: images});
+		for (let images of this.viewer.scene.images360) {
+			this.on360ImagesAdded({ images: images });
 		}
 	}
 
-	getExtentsLayer () {
+	getExtentsLayer() {
 		if (this.extentsLayer) {
 			return this.extentsLayer;
 		}
@@ -406,7 +406,7 @@ export class MapView{
 		return this.extentsLayer;
 	}
 
-	getAnnotationsLayer () {
+	getAnnotationsLayer() {
 		if (this.annotationsLayer) {
 			return this.annotationsLayer;
 		}
@@ -428,7 +428,7 @@ export class MapView{
 		return this.annotationsLayer;
 	}
 
-	getCameraLayer () {
+	getCameraLayer() {
 		if (this.cameraLayer) {
 			return this.cameraLayer;
 		}
@@ -453,7 +453,7 @@ export class MapView{
 		return this.cameraLayer;
 	}
 
-	getToolLayer () {
+	getToolLayer() {
 		if (this.toolLayer) {
 			return this.toolLayer;
 		}
@@ -475,8 +475,8 @@ export class MapView{
 		return this.toolLayer;
 	}
 
-	getImages360Layer(){
-		if(this.images360Layer){
+	getImages360Layer() {
+		if (this.images360Layer) {
 			return this.images360Layer;
 		}
 
@@ -492,7 +492,7 @@ export class MapView{
 				})
 			})
 		});
-		
+
 		let layer = new ol.layer.Vector({
 			source: new ol.source.Vector({}),
 			style: style,
@@ -503,7 +503,7 @@ export class MapView{
 		return this.images360Layer;
 	}
 
-	getSourcesLayer () {
+	getSourcesLayer() {
 		if (this.sourcesLayer) {
 			return this.sourcesLayer;
 		}
@@ -524,7 +524,7 @@ export class MapView{
 		return this.sourcesLayer;
 	}
 
-	getSourcesLabelLayer () {
+	getSourcesLabelLayer() {
 		if (this.sourcesLabelLayer) {
 			return this.sourcesLabelLayer;
 		}
@@ -548,13 +548,13 @@ export class MapView{
 		return this.sourcesLabelLayer;
 	}
 
-	setSceneProjection (sceneProjection) {
+	setSceneProjection(sceneProjection) {
 		this.sceneProjection = sceneProjection;
 		this.toMap = proj4(this.sceneProjection, this.mapProjection);
 		this.toScene = proj4(this.mapProjection, this.sceneProjection);
 	};
 
-	getMapExtent () {
+	getMapExtent() {
 		let bb = this.viewer.getBoundingBox();
 
 		let bottomLeft = this.toMap.forward([bb.min.x, bb.min.y]);
@@ -572,7 +572,7 @@ export class MapView{
 		return extent;
 	};
 
-	getMapCenter () {
+	getMapCenter() {
 		let mapExtent = this.getMapExtent();
 
 		let mapCenter = [
@@ -583,7 +583,7 @@ export class MapView{
 		return mapCenter;
 	};
 
-	updateToolDrawings () {
+	updateToolDrawings() {
 		this.toolLayer.getSource().clear();
 
 		let profiles = this.viewer.profileTool.profiles;
@@ -623,11 +623,11 @@ export class MapView{
 		}
 	}
 
-	addImages360(images){
+	addImages360(images) {
 		let transform = this.toMap.forward;
 		let layer = this.getImages360Layer();
 
-		for(let image of images.images){
+		for (let image of images.images) {
 
 			let p = transform([image.position[0], image.position[1]]);
 
@@ -643,7 +643,7 @@ export class MapView{
 		}
 	}
 
-	async load (pointcloud) {
+	async load(pointcloud) {
 		if (!pointcloud) {
 			return;
 		}
@@ -655,7 +655,7 @@ export class MapView{
 		if (!this.sceneProjection) {
 			try {
 				this.setSceneProjection(pointcloud.projection);
-			}catch (e) {
+			} catch (e) {
 				console.log('Failed projection:', e);
 
 				if (pointcloud.fallbackProjection) {
@@ -663,11 +663,11 @@ export class MapView{
 						console.log('Trying fallback projection...');
 						this.setSceneProjection(pointcloud.fallbackProjection);
 						console.log('Set projection from fallback');
-					}catch (e) {
+					} catch (e) {
 						console.log('Failed fallback projection:', e);
 						return;
 					}
-				}else{
+				} else {
 					return;
 				};
 			}
@@ -691,7 +691,7 @@ export class MapView{
 			constrainResolution: false
 		});
 
-		if (pointcloud.pcoGeometry.type == 'ept'){ 
+		if (pointcloud.pcoGeometry.type == 'ept') {
 			return;
 		}
 
@@ -700,7 +700,7 @@ export class MapView{
 
 		fetch(url).then(async (response) => {
 			let data = await response.json();
-		
+
 			let sources = data.sources;
 
 			for (let i = 0; i < sources.length; i++) {
@@ -740,12 +740,12 @@ export class MapView{
 				this.sourcesLabelLayer.getSource().addFeature(feature);
 			}
 		}).catch(() => {
-			
+
 		});
 
 	}
 
-	toggle () {
+	toggle() {
 		if (this.elMap.is(':visible')) {
 			this.elMap.css('display', 'none');
 			this.enabled = false;
@@ -755,7 +755,7 @@ export class MapView{
 		}
 	}
 
-	update (delta) {
+	update(delta) {
 		if (!this.sceneProjection) {
 			return;
 		}
@@ -797,11 +797,11 @@ export class MapView{
 		this.gCamera.setCoordinates([p1, p2, p3, p1]);
 	}
 
-	get sourcesVisible () {
+	get sourcesVisible() {
 		return this.getSourcesLayer().getVisible();
 	}
 
-	set sourcesVisible (value) {
+	set sourcesVisible(value) {
 		this.getSourcesLayer().setVisible(value);
 	}
 
