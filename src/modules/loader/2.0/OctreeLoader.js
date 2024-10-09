@@ -101,7 +101,8 @@ export class NodeLoader {
 								const pointcloudId = match.split('-')[0];
 								if (window.__FLYVAST__CLASSIFICATION__[pointcloudId]) {
 									for (let i = 0; i < flyvastClassification.length; i++) {
-										flyvastClassification[i] = window.__FLYVAST__CLASSIFICATION__[pointcloudId][segmentations2[i]].index || 0;
+										const tmp = window.__FLYVAST__CLASSIFICATION__[pointcloudId][arrayBuffer[i * 2 + 1]];
+										flyvastClassification[i] = (tmp && tmp.index) || 0;
 									}
 								}
 							}

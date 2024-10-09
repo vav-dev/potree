@@ -109,8 +109,9 @@ export class PointCloudOctree extends PointCloudTree {
 		this.boundingBox = this.pcoGeometry.boundingBox;
 		this.boundingSphere = this.boundingBox.getBoundingSphere(new THREE.Sphere());
 		this.material = material || new PointCloudMaterial();
-		this.visiblePointsTarget = 2 * 1000 * 1000;
-		this.minimumNodePixelSize = 150;
+		this.visiblePointsTarget = 1 * 1200 * 1000;
+		// this.minimumNodePixelSize = 150;
+		this.minimumNodePixelSize = 30;
 		this.level = 0;
 		this.position.copy(geometry.offset);
 		this.updateMatrix();

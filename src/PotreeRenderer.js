@@ -713,7 +713,7 @@ export class Renderer {
 
 		let worldView = new THREE.Matrix4();
 
-		let mat4holder = new Float32Array(16);
+		let mat4holder = new Float64Array(16);
 
 		let i = 0;
 		for (let node of nodes) {
@@ -760,6 +760,17 @@ export class Renderer {
 			if (lModel) {
 				mat4holder.set(world.elements);
 				gl.uniformMatrix4fv(lModel, false, mat4holder);
+			}
+
+			const lModelCut = shader.uniformLocations["modelMatrixCut"];
+			if (lModelCut) {
+				for (let j = 0; j < 16; j++) {
+					mat4holder[j] = world.elements[j];
+				}
+				mat4holder[12] -= octree.position.x;
+				mat4holder[13] -= octree.position.y;
+				mat4holder[14] -= octree.position.z;
+				gl.uniformMatrix4fv(lModelCut, false, mat4holder);
 			}
 
 			const lModelView = shader.uniformLocations["modelViewMatrix"];
@@ -1237,7 +1248,7 @@ export class Renderer {
 			shader.setUniform1f("near", camera.near);
 			shader.setUniform1f("far", camera.far);
 
-			if (camera instanceof THREE.OrthographicCamera) {
+			if (camera.isOrthographicCamera) {
 				shader.setUniform("uUseOrthographicCamera", true);
 				shader.setUniform("uOrthoWidth", camera.right - camera.left);
 				shader.setUniform("uOrthoHeight", camera.top - camera.bottom);

@@ -5,35 +5,35 @@
 //var common = require("./common"),
 //	Promise = require("bluebird");
 
-(function(scope) {
+(function (scope) {
 	"use strict";
 
 	var pointFormatReaders = {
-		0: function(dv) {
+		0: function (dv) {
 			return {
-				"position": [ dv.getInt32(0, true), dv.getInt32(4, true), dv.getInt32(8, true)],
+				"position": [dv.getInt32(0, true), dv.getInt32(4, true), dv.getInt32(8, true)],
 				"intensity": dv.getUint16(12, true),
 				"classification": dv.getUint8(16, true)
 			};
 		},
-		1: function(dv) {
+		1: function (dv) {
 			return {
-				"position": [ dv.getInt32(0, true), dv.getInt32(4, true), dv.getInt32(8, true)],
+				"position": [dv.getInt32(0, true), dv.getInt32(4, true), dv.getInt32(8, true)],
 				"intensity": dv.getUint16(12, true),
 				"classification": dv.getUint8(16, true)
 			};
 		},
-		2: function(dv) {
+		2: function (dv) {
 			return {
-				"position": [ dv.getInt32(0, true), dv.getInt32(4, true), dv.getInt32(8, true)],
+				"position": [dv.getInt32(0, true), dv.getInt32(4, true), dv.getInt32(8, true)],
 				"intensity": dv.getUint16(12, true),
 				"classification": dv.getUint8(16, true),
 				"color": [dv.getUint16(20, true), dv.getUint16(22, true), dv.getUint16(24, true)]
 			};
 		},
-		3: function(dv) {
+		3: function (dv) {
 			return {
-				"position": [ dv.getInt32(0, true), dv.getInt32(4, true), dv.getInt32(8, true)],
+				"position": [dv.getInt32(0, true), dv.getInt32(4, true), dv.getInt32(8, true)],
 				"intensity": dv.getUint16(12, true),
 				"classification": dv.getUint8(16, true),
 				"color": [dv.getUint16(28, true), dv.getUint16(30, true), dv.getUint16(32, true)]
@@ -50,7 +50,7 @@
 			return r[0];
 
 		var ret = [];
-		for (var i = 0 ; i < count ; i ++) {
+		for (var i = 0; i < count; i++) {
 			ret.push(r[i]);
 		}
 
@@ -60,13 +60,13 @@
 	function parseLASHeader(arraybuffer) {
 		var o = {};
 
-		o.pointsOffset = readAs(arraybuffer, Uint32Array, 32*3);
-		o.pointsFormatId = readAs(arraybuffer, Uint8Array, 32*3+8);
-		o.pointsStructSize = readAs(arraybuffer, Uint16Array, 32*3+8+1);
-		o.pointsCount = readAs(arraybuffer, Uint32Array, 32*3 + 11);
+		o.pointsOffset = readAs(arraybuffer, Uint32Array, 32 * 3);
+		o.pointsFormatId = readAs(arraybuffer, Uint8Array, 32 * 3 + 8);
+		o.pointsStructSize = readAs(arraybuffer, Uint16Array, 32 * 3 + 8 + 1);
+		o.pointsCount = readAs(arraybuffer, Uint32Array, 32 * 3 + 11);
 
 
-		var start = 32*3 + 35;
+		var start = 32 * 3 + 35;
 		o.scale = readAs(arraybuffer, Float64Array, start, 3); start += 24; // 8*3
 		o.offset = readAs(arraybuffer, Float64Array, start, 3); start += 24;
 
@@ -84,14 +84,14 @@
 
 	// This method is scope-wide since the nacl module uses this fuction to notify
 	// us of events
-	scope.handleMessage = function(message_event) {
+	scope.handleMessage = function (message_event) {
 		var msg = message_event.data;
 		var resolver = waitHandlers[msg.id];
 		delete waitHandlers[msg.id];
 
 		// call the callback in a separate context, make sure we've cleaned our
 		// state out before the callback is invoked since it may queue more doExchanges
-		setTimeout(function() { 
+		setTimeout(function () {
 			if (msg.error)
 				return resolver.reject(new Error(msg.message || "Unknown Error"));
 
@@ -99,16 +99,17 @@
 				return resolver.resolve({
 					buffer: msg.result,
 					count: msg.count,
-					hasMoreData: msg.hasMoreData});
+					hasMoreData: msg.hasMoreData
+				});
 			}
 
 			resolver.resolve(msg.result);
 		}, 0);
 	};
 
-	var doDataExchange = function(cmd, callback) {
+	var doDataExchange = function (cmd, callback) {
 		cmd.id = msgIndex.toString();
-		msgIndex ++;
+		msgIndex++;
 
 		var resolver = Promise.defer();
 		waitHandlers[cmd.id] = resolver;
@@ -121,35 +122,35 @@
 	// LAS Loader
 	// Loads uncompressed files
 	//
-	var LASLoader = function(arraybuffer) {
+	var LASLoader = function (arraybuffer) {
 		this.arraybuffer = arraybuffer;
 	};
 
-	LASLoader.prototype.open = function() {
+	LASLoader.prototype.open = function () {
 		// nothing needs to be done to open this file
 		//
 		this.readOffset = 0;
-		return new Promise(function(res, rej) {
+		return new Promise(function (res, rej) {
 			setTimeout(res, 0);
 		});
 	};
 
-	LASLoader.prototype.getHeader = function() {
+	LASLoader.prototype.getHeader = function () {
 		var o = this;
 
-		return new Promise(function(res, rej) {
-			setTimeout(function() {
+		return new Promise(function (res, rej) {
+			setTimeout(function () {
 				o.header = parseLASHeader(o.arraybuffer);
 				res(o.header);
 			}, 0);
 		});
 	};
 
-	LASLoader.prototype.readData = function(count, offset, skip) {
+	LASLoader.prototype.readData = function (count, offset, skip) {
 		var o = this;
 
-		return new Promise(function(res, rej) {
-			setTimeout(function() {
+		return new Promise(function (res, rej) {
+			setTimeout(function () {
 				if (!o.header)
 					return rej(new Error("Cannot start reading data till a header request is issued"));
 
@@ -161,7 +162,8 @@
 					res({
 						buffer: o.arraybuffer.slice(start, end),
 						count: count,
-						hasMoreData: o.readOffset + count < o.header.pointsCount});
+						hasMoreData: o.readOffset + count < o.header.pointsCount
+					});
 					o.readOffset += count;
 				}
 				else {
@@ -170,16 +172,16 @@
 					var pointsRead = 0;
 
 					var buf = new Uint8Array(bufferSize * o.header.pointsStructSize);
-					for (var i = 0 ; i < pointsToRead ; i ++) {
+					for (var i = 0; i < pointsToRead; i++) {
 						if (i % skip === 0) {
 							start = o.header.pointsOffset + o.readOffset * o.header.pointsStructSize;
 							var src = new Uint8Array(o.arraybuffer, start, o.header.pointsStructSize);
 
 							buf.set(src, pointsRead * o.header.pointsStructSize);
-							pointsRead ++;
+							pointsRead++;
 						}
 
-						o.readOffset ++;
+						o.readOffset++;
 					}
 
 					res({
@@ -192,9 +194,9 @@
 		});
 	};
 
-	LASLoader.prototype.close = function() {
+	LASLoader.prototype.close = function () {
 		var o = this;
-		return new Promise(function(res, rej) {
+		return new Promise(function (res, rej) {
 			o.arraybuffer = null;
 			setTimeout(res, 0);
 		});
@@ -203,35 +205,35 @@
 	// LAZ Loader
 	// Uses NaCL module to load LAZ files
 	//
-	var LAZLoader = function(arraybuffer) {
+	var LAZLoader = function (arraybuffer) {
 		this.arraybuffer = arraybuffer;
-		
+
 		let workerPath = Potree.scriptPath + "/workers/LASLAZWorker.js";
 		this.ww = Potree.workerPool.getWorker(workerPath);
 
 		this.nextCB = null;
 		var o = this;
 
-		this.ww.onmessage = function(e) {
+		this.ww.onmessage = function (e) {
 			if (o.nextCB !== null) {
 				o.nextCB(e.data);
 				o.nextCB = null;
 			}
 		};
 
-		this.dorr = function(req, cb) {
+		this.dorr = function (req, cb) {
 			o.nextCB = cb;
 			o.ww.postMessage(req);
 		};
 	};
 
-	LAZLoader.prototype.open = function() {
+	LAZLoader.prototype.open = function () {
 
 		// nothing needs to be done to open this file
 		//
 		var o = this;
-		return new Promise(function(res, rej) {
-			o.dorr({type:"open", arraybuffer: o.arraybuffer}, function(r) {
+		return new Promise(function (res, rej) {
+			o.dorr({ type: "open", arraybuffer: o.arraybuffer }, function (r) {
 				if (r.status !== 1)
 					return rej(new Error("Failed to open file"));
 
@@ -240,11 +242,11 @@
 		});
 	};
 
-	LAZLoader.prototype.getHeader = function() {
+	LAZLoader.prototype.getHeader = function () {
 		var o = this;
 
-		return new Promise(function(res, rej) {
-			o.dorr({type:'header'}, function(r) {
+		return new Promise(function (res, rej) {
+			o.dorr({ type: 'header' }, function (r) {
 				if (r.status !== 1)
 					return rej(new Error("Failed to get header"));
 
@@ -253,11 +255,11 @@
 		});
 	};
 
-	LAZLoader.prototype.readData = function(count, offset, skip) {
+	LAZLoader.prototype.readData = function (count, offset, skip) {
 		var o = this;
 
-		return new Promise(function(res, rej) {
-			o.dorr({type:'read', count: count, offset: offset, skip: skip}, function(r) {
+		return new Promise(function (res, rej) {
+			o.dorr({ type: 'read', count: count, offset: offset, skip: skip }, function (r) {
 				if (r.status !== 1)
 					return rej(new Error("Failed to read data"));
 				res({
@@ -269,14 +271,14 @@
 		});
 	};
 
-	LAZLoader.prototype.close = function() {
+	LAZLoader.prototype.close = function () {
 		var o = this;
 
-		return new Promise(function(res, rej) {
-			o.dorr({type:'close'}, function(r) {
+		return new Promise(function (res, rej) {
+			o.dorr({ type: 'close' }, function (r) {
 				let workerPath = Potree.scriptPath + "/workers/LASLAZWorker.js";
 				Potree.workerPool.returnWorker(workerPath, o.ww);
-			
+
 				if (r.status !== 1)
 					return rej(new Error("Failed to close file"));
 
@@ -286,7 +288,7 @@
 	};
 
 	// A single consistent interface for loading LAS/LAZ files
-	var LASFile = function(arraybuffer) {
+	var LASFile = function (arraybuffer) {
 		this.arraybuffer = arraybuffer;
 
 		this.determineVersion();
@@ -302,8 +304,8 @@
 			new LASLoader(this.arraybuffer);
 	};
 
-	LASFile.prototype.determineFormat = function() {
-		var formatId = readAs(this.arraybuffer, Uint8Array, 32*3+8);
+	LASFile.prototype.determineFormat = function () {
+		var formatId = readAs(this.arraybuffer, Uint8Array, 32 * 3 + 8);
 		var bit_7 = (formatId & 0x80) >> 7;
 		var bit_6 = (formatId & 0x40) >> 6;
 
@@ -314,31 +316,31 @@
 		this.isCompressed = (bit_7 === 1 || bit_6 === 1);
 	};
 
-	LASFile.prototype.determineVersion = function() {
+	LASFile.prototype.determineVersion = function () {
 		var ver = new Int8Array(this.arraybuffer, 24, 2);
 		this.version = ver[0] * 10 + ver[1];
 		this.versionAsString = ver[0] + "." + ver[1];
 	};
 
-	LASFile.prototype.open = function() {
+	LASFile.prototype.open = function () {
 		return this.loader.open();
 	};
 
-	LASFile.prototype.getHeader = function() {
+	LASFile.prototype.getHeader = function () {
 		return this.loader.getHeader();
 	};
 
-	LASFile.prototype.readData = function(count, start, skip) {
+	LASFile.prototype.readData = function (count, start, skip) {
 		return this.loader.readData(count, start, skip);
 	};
 
-	LASFile.prototype.close = function() {
+	LASFile.prototype.close = function () {
 		return this.loader.close();
 	};
 
 	// Decodes LAS records into points
 	//
-	var LASDecoder = function(buffer, pointFormatID, pointSize, pointsCount, scale, offset, mins, maxs) {
+	var LASDecoder = function (buffer, pointFormatID, pointSize, pointsCount, scale, offset, mins, maxs) {
 		this.arrayb = buffer;
 		this.decoder = pointFormatReaders[pointFormatID];
 		this.pointsCount = pointsCount;
@@ -349,7 +351,7 @@
 		this.maxs = maxs;
 	};
 
-	LASDecoder.prototype.getPoint = function(index) {
+	LASDecoder.prototype.getPoint = function (index) {
 		if (index < 0 || index >= this.pointsCount)
 			throw new Error("Point index out of range");
 
@@ -393,6 +395,6 @@
 	scope.LASFile = LASFile;
 	scope.LASDecoder = LASDecoder;
 	scope.LASModuleWasLoaded = false;
-//})(module.exports);
-})(this);
+	//})(module.exports);
+})(window);
 

@@ -3,6 +3,7 @@
 import * as THREE from "three/src/Three";
 import { Version } from "../Version.js";
 import { XHRFactory } from "../XHRFactory.js";
+import "../../libs/plasio/js/laslaz.js";
 
 /**
  * laslaz code taken and adapted from plas.io js-laslaz
@@ -142,6 +143,7 @@ export class LasLazBatcher {
 			let numberOfReturns = new Uint8Array(e.data.numberOfReturns);
 			let pointSourceIDs = new Uint16Array(e.data.pointSourceID);
 			let indices = new Uint8Array(e.data.indices);
+			let segmentations = new Float32Array(e.data.segmentations);
 
 			geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 			geometry.setAttribute('color', new THREE.BufferAttribute(colors, 4, true));
@@ -151,6 +153,7 @@ export class LasLazBatcher {
 			geometry.setAttribute('number of returns', new THREE.BufferAttribute(numberOfReturns, 1));
 			geometry.setAttribute('source id', new THREE.BufferAttribute(pointSourceIDs, 1));
 			geometry.setAttribute('indices', new THREE.BufferAttribute(indices, 4));
+			geometry.setAttribute('segmentation', new THREE.BufferAttribute(segmentations, 2));
 			geometry.attributes.indices.normalized = true;
 
 			for (const key in e.data.ranges) {

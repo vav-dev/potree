@@ -48,7 +48,8 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 		this._gradient = Gradients.SPECTRAL;
 		this.gradientTexture = PointCloudMaterial.generateGradientTexture(this._gradient);
 		this._matcap = "matcap.jpg";
-		this.matcapTexture = Potree.PointCloudMaterial.generateMatcapTexture(this._matcap);
+		// this.matcapTexture = Potree.PointCloudMaterial.generateMatcapTexture(this._matcap);
+		this.matcapTexture = [];
 		this.lights = false;
 		this.fog = false;
 		this._treeType = treeType;
@@ -313,12 +314,22 @@ export class PointCloudMaterial extends THREE.RawShaderMaterial {
 			this.updateShaderSource();
 		}
 
-		this.uniforms.clipBoxes.value = new Float32Array(this.clipBoxes.length * 16);
+		this.uniforms.clipBoxes.value = new Float64Array(this.clipBoxes.length * 16);
 
 		for (let i = 0; i < this.clipBoxes.length; i++) {
 			let box = clipBoxes[i];
 
-			this.uniforms.clipBoxes.value.set(box.inverse.elements, 16 * i);
+			// this.uniforms.clipBoxes.value.set(box.inverse.elements, 16 * i);
+			let elements = [];
+
+			for (let j = 0; j < 16; j++) {
+				elements[j] = box.box.matrixWorld.elements[j];
+			}
+
+			elements[12] -= box.octreePosition.x;
+			elements[13] -= box.octreePosition.y;
+			elements[14] -= box.octreePosition.z;
+			this.uniforms.clipBoxes.value.set(elements, 16 * i);
 		}
 
 		for (let i = 0; i < this.uniforms.clipBoxes.value.length; i++) {
